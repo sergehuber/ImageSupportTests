@@ -1,0 +1,16 @@
+
+This small utility makes it easy to check for supports of Java 2D on headless systems, as well as compare performance of image generation using three libraries : 
+- Java2D
+- Thumbnailator, http://code.google.com/p/thumbnailator/
+- Im4Java, http://im4java.sourceforge.net/
+
+You can generate the project using : 
+
+mvn clean install assembly:single
+
+and then run using : 
+
+java -jar target/ImageSupportTests-*.jar
+
+which will show you the command line syntax 
+
