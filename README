@@ -1,16 +1,31 @@
 
-This small utility makes it easy to check for supports of Java 2D on headless systems, as well as compare performance of image generation using three libraries : 
+This small utility makes it easy to check for supports of Java 2D on headless systems, as well as compare
+performance of image generation using three libraries :
+
 - Java2D
 - Thumbnailator, http://code.google.com/p/thumbnailator/
 - Im4Java, http://im4java.sourceforge.net/
 
 You can generate the project using : 
 
-mvn clean install assembly:single
+  mvn clean install assembly:single
 
 and then run using : 
 
-java -jar target/ImageSupportTests-*.jar
+  java -jar target/ImageSupportTests-*.jar
 
 which will show you the command line syntax 
+
+Here is an example output from the tool :
+
+> java -jar ImageSupportTests-1.0-jar-with-dependencies.jar logo-acme.png
+VM supported read image types = image/png,image/jpeg,image/x-png,image/vnd.wap.wbmp,image/gif,image/bmp
+VM supported write image types = image/png,image/jpeg,image/x-png,image/vnd.wap.wbmp,image/bmp,image/gif
+Warming up Java VM with 100 warmup loops...
+Testing and benchmarking image generation (100 loops each, resizing to 160x160)...
+Accumulated time for Thumbnailator default quality=1345ms, average=13.45ms
+Accumulated time for Thumbnailator high quality   =1471ms, average=14.71ms
+Accumulated time for Java2D linear interpolation  =1379ms, average=13.79ms
+Accumulated time for Java2D bicubic interpolation =1425ms, average=14.25ms
+Accumulated time for Im4Java                      =866ms, average=8.66ms
 
