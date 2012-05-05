@@ -1,24 +1,9 @@
 package org.jahia.application;
 
-import net.coobird.thumbnailator.Thumbnails;
-import net.coobird.thumbnailator.resizers.Resizers;
-import org.apache.commons.io.FilenameUtils;
-import org.im4java.core.CommandException;
-import org.im4java.core.ConvertCmd;
-import org.im4java.core.IM4JavaException;
-import org.im4java.core.IMOperation;
-import org.im4java.process.ProcessStarter;
-
 import javax.imageio.ImageIO;
-import javax.imageio.ImageWriter;
-import javax.imageio.stream.FileImageOutputStream;
-import javax.imageio.stream.ImageOutputStream;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
@@ -29,11 +14,55 @@ import java.util.Iterator;
  */
 public class ImageTests {
 
+    public static ImageOperation[] imageOperationImpls = {
+        new Java2DLinearImageOperation(),
+        new Java2DBicubicImageOperation(),
+        new ThumnailatorImageOperation(),
+        new ThumbnailatorHQImageOperation(),
+        new Im4JavaImageOperation()
+    };
 
-    public static void main(String[] args) throws IOException, InterruptedException, IM4JavaException {
+    public List<ImageOperation> availableImageOperations = new ArrayList<ImageOperation>();
 
-        int imageWidth = 160;
-        int imageHeight = 160;
+    public ImageTests() {
+        for (ImageOperation imageOperation : imageOperationImpls) {
+            if (imageOperation.isAvailable()) {
+                availableImageOperations.add(imageOperation);
+            }
+        }
+    }
+
+    public void warmup(String originalFile, int newWidth, int newHeight, int nbWarmupLoops) throws IOException {
+        // first result is discarded, as VM needs time to heat up.
+        System.out.println("Warming up Java VM with "+nbWarmupLoops+" warmup loops...");
+        for (int i=0; i < nbWarmupLoops; i++) {
+            for (ImageOperation imageOperation : availableImageOperations) {
+                imageOperation.resize(originalFile, newWidth, newHeight, AbstractImageOperation.ResizeType.SCALE_TO_FILL);
+            }
+        }
+    }
+
+    public void runResize(String originalFile, int imageWidth, int imageHeight, int nbLoops, AbstractImageOperation.ResizeType resizeType) throws IOException {
+        System.out.println("Testing and benchmarking image generation ("+nbLoops+" loops each, resizing to " + imageWidth + "x" + imageHeight + " with resize type = "+resizeType+")...");
+
+        for (ImageOperation imageOperation : availableImageOperations) {
+            long accumTime = 0;
+            for (int i=0; i < nbLoops; i++) {
+                long startTime = System.currentTimeMillis();
+                imageOperation.resize(originalFile, imageWidth, imageHeight, resizeType);
+                long operationTotalTime = System.currentTimeMillis() - startTime;
+                accumTime += operationTotalTime;
+            }
+            double averageTime = accumTime / ((double)nbLoops);
+            System.out.println("Accumulated time for "+imageOperation.getImplementationName()+"=" + accumTime + "ms, average=" + averageTime + "ms");
+        }
+
+    }
+
+    public static void main(String[] args) throws IOException {
+
+        int imageWidth = 144;
+        int imageHeight = 144;
         int nbLoops = 100;
         int nbWarmupLoops = 100;
 
@@ -75,185 +104,12 @@ public class ImageTests {
         System.out.println("VM supported read image types = " + readMimeTypes);
         System.out.println("VM supported write image types = " + writeMimeTypes);
 
-        // first result is discarded, as VM needs time to heat up.
-        System.out.println("Warming up Java VM with "+nbWarmupLoops+" warmup loops...");
-        for (int i=0; i < nbWarmupLoops; i++) {
-            generateWithThumbnailatorDefault(args[0], imageWidth, imageHeight);
-            generateWithThumbnailatorHQ(args[0], imageWidth, imageHeight);
-            generateWithJava2DBicubic(args[0], imageWidth, imageHeight);
-        }
-
-        System.out.println("Testing and benchmarking image generation ("+nbLoops+" loops each, resizing to " + imageWidth + "x" + imageHeight + ")...");
-
-        long accumTime = 0;
-        for (int i=0; i < nbLoops; i++) {
-            accumTime += generateWithThumbnailatorDefault(args[0], imageWidth, imageHeight);
-        }
-        double averageTime = accumTime / ((double)nbLoops);
-        System.out.println("Accumulated time for Thumbnailator default quality=" + accumTime + "ms, average=" + averageTime + "ms");
-
-        accumTime = 0;
-        for (int i=0; i < nbLoops; i++) {
-            accumTime += generateWithThumbnailatorHQ(args[0], imageWidth, imageHeight);
-        }
-        averageTime = accumTime / ((double)nbLoops);
-        System.out.println("Accumulated time for Thumbnailator high quality   =" + accumTime + "ms, average=" + averageTime + "ms");
-
-        accumTime = 0;
-        for (int i=0; i < nbLoops; i++) {
-            accumTime += generateWithJava2DLinear(args[0], imageWidth, imageHeight);
-        }
-        averageTime = accumTime / ((double)nbLoops);
-        System.out.println("Accumulated time for Java2D linear interpolation  =" + accumTime + "ms, average=" + averageTime + "ms");
-
-        accumTime = 0;
-        for (int i=0; i < nbLoops; i++) {
-            accumTime += generateWithJava2DBicubic(args[0], imageWidth, imageHeight);
-        }
-        averageTime = accumTime / ((double)nbLoops);
-        System.out.println("Accumulated time for Java2D bicubic interpolation =" + accumTime + "ms, average=" + averageTime + "ms");
-
-        accumTime = 0;
-        for (int i=0; i < nbLoops; i++) {
-            accumTime += generateWithIm4Java(args[0], imageWidth, imageHeight);
-            if (accumTime < 0) {
-                break;
-            }
-        }
-        if (accumTime > 0) {
-            averageTime = accumTime / ((double)nbLoops);
-            System.out.println("Accumulated time for Im4Java                      =" + accumTime + "ms, average=" + averageTime + "ms");
-        }
+        ImageTests imageTests = new ImageTests();
+        imageTests.warmup(args[0], imageWidth, imageHeight, nbWarmupLoops);
+        imageTests.runResize(args[0], imageWidth, imageHeight, nbLoops, AbstractImageOperation.ResizeType.SCALE_TO_FILL);
+        imageTests.runResize(args[0], imageWidth, imageHeight, nbLoops, AbstractImageOperation.ResizeType.ADJUST_SIZE);
+        imageTests.runResize(args[0], imageWidth, imageHeight, nbLoops, AbstractImageOperation.ResizeType.ASPECT_FILL);
+        imageTests.runResize(args[0], imageWidth, imageHeight, nbLoops, AbstractImageOperation.ResizeType.ASPECT_FIT);
     }
 
-    public static long generateWithJava2DLinear(String originalFile, int newWidth, int newHeight) throws IOException {
-
-        long startTime = System.currentTimeMillis();
-        String destFile = getDestFileName(originalFile, "Java2DLinear", newWidth, newHeight);
-
-        // Read image to scale
-        BufferedImage originalImage = ImageIO.read(new File(originalFile));
-
-        BufferedImage dest = new BufferedImage(newWidth, newHeight,
-        BufferedImage.TYPE_INT_ARGB);
-
-        // Paint source image into the destination, scaling as needed
-        Graphics2D graphics2D = dest.createGraphics();
-        graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-        RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-        RenderingHints.VALUE_ANTIALIAS_ON);
-        graphics2D.drawImage(originalImage, 0, 0, newWidth, newHeight, null);
-        graphics2D.dispose();
-
-        // Save destination image
-        Iterator<ImageWriter> suffixWriters = ImageIO.getImageWritersBySuffix(FilenameUtils.getExtension(originalFile));
-        if (suffixWriters.hasNext()) {
-            ImageWriter imageWriter = suffixWriters.next();
-            ImageOutputStream imageOutputStream = new FileImageOutputStream(new File(destFile));
-            imageWriter.setOutput(imageOutputStream);
-            imageWriter.write(dest);
-        }
-
-        long totalTime = System.currentTimeMillis() - startTime;
-        return totalTime;
-    }
-
-    public static long generateWithJava2DBicubic(String originalFile, int newWidth, int newHeight) throws IOException {
-
-        long startTime = System.currentTimeMillis();
-        String destFile = getDestFileName(originalFile, "Java2DBicubic", newWidth, newHeight);
-
-        // Read image to scale
-        BufferedImage originalImage = ImageIO.read(new File(originalFile));
-        BufferedImage dest = new BufferedImage(newWidth, newHeight,
-        BufferedImage.TYPE_INT_ARGB);
-
-        // Paint source image into the destination, scaling as needed
-        Graphics2D graphics2D = dest.createGraphics();
-        graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-        RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-        graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-        RenderingHints.VALUE_ANTIALIAS_ON);
-        graphics2D.drawImage(originalImage, 0, 0, newWidth, newHeight, null);
-        graphics2D.dispose();
-
-        // Save destination image
-        Iterator<ImageWriter> suffixWriters = ImageIO.getImageWritersBySuffix(FilenameUtils.getExtension(originalFile));
-        if (suffixWriters.hasNext()) {
-            ImageWriter imageWriter = suffixWriters.next();
-            ImageOutputStream imageOutputStream = new FileImageOutputStream(new File(destFile));
-            imageWriter.setOutput(imageOutputStream);
-            imageWriter.write(dest);
-        }
-
-        long totalTime = System.currentTimeMillis() - startTime;
-        return totalTime;
-    }
-
-    private static String getDestFileName(String originalFile, String classifier, int newWidth, int newHeight) {
-        String originalFileBaseName = FilenameUtils.getBaseName(originalFile);
-        return originalFileBaseName + "." + classifier + "." + Integer.toString(newWidth) + "x" + Integer.toString(newHeight) + "." + FilenameUtils.getExtension(originalFile);
-    }
-
-    public static long generateWithThumbnailatorHQ(String originalFile, int newWidth, int newHeight) throws IOException {
-        long startTime = System.currentTimeMillis();
-        String destFile = getDestFileName(originalFile, "ThumbnailatorHQ", newWidth, newHeight);
-        Thumbnails.of(new File(originalFile))
-                .outputQuality(1.0f)
-                .resizer(Resizers.BICUBIC)
-                .size(newWidth, newHeight)
-                .keepAspectRatio(false)
-                .toFile(new File(destFile));
-        long totalTime = System.currentTimeMillis() - startTime;
-        return totalTime;
-    }
-
-    public static long generateWithThumbnailatorDefault(String originalFile, int newWidth, int newHeight) throws IOException {
-        long startTime = System.currentTimeMillis();
-        String destFile = getDestFileName(originalFile, "Thumbnailator", newWidth, newHeight);
-        Thumbnails.of(new File(originalFile))
-                .size(newWidth, newHeight)
-                .keepAspectRatio(false)
-                .toFile(new File(destFile));
-        long totalTime = System.currentTimeMillis() - startTime;
-        return totalTime;
-    }
-
-    public static long generateWithIm4Java(String originalFile, int newWidth, int newHeight) throws IM4JavaException, InterruptedException, IOException {
-        long startTime = System.currentTimeMillis();
-        String destFile = getDestFileName(originalFile, "Im4Java", newWidth, newHeight);
-
-        ProcessStarter.setGlobalSearchPath("/usr/bin:/usr/local/bin:/opt/local/bin");
-
-        // create command
-        ConvertCmd cmd = new ConvertCmd();
-
-        // create the operation, add images and operators/options
-        IMOperation op = new IMOperation();
-        op.addImage(originalFile);
-
-        if (false) {
-            op.resize(newWidth,newWidth,"^");
-            op.gravity("center");
-            op.crop(newWidth,newWidth,0,0);
-        } else {
-            op.resize(newWidth,newHeight);
-        }
-
-        op.addImage(destFile);
-
-        try {
-            cmd.run(op);
-            long totalTime = System.currentTimeMillis() - startTime;
-            return totalTime;
-        } catch (CommandException ce) {
-            if (ce.getCause() instanceof FileNotFoundException) {
-                System.err.println("Seems ImageMagick is not available ("+ce.getLocalizedMessage()+").");
-            } else {
-                ce.printStackTrace();
-            }
-        }
-        return -1;
-    }
 }
