@@ -1,19 +1,13 @@
 package org.jahia.application;
 
-import org.apache.commons.io.FilenameUtils;
-
 import javax.imageio.ImageIO;
-import javax.imageio.ImageWriter;
-import javax.imageio.stream.FileImageOutputStream;
-import javax.imageio.stream.ImageOutputStream;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Iterator;
 
 /**
- * Im4Java image operations implementation
+ * Java2D bicubic interpolation image operations implementation
  */
 public class Java2DBicubicImageOperation extends AbstractJava2DImageOperation {
 
@@ -48,14 +42,9 @@ public class Java2DBicubicImageOperation extends AbstractJava2DImageOperation {
         graphics2D.dispose();
 
         // Save destination image
-        Iterator<ImageWriter> suffixWriters = ImageIO.getImageWritersBySuffix(FilenameUtils.getExtension(originalFile));
-        if (suffixWriters.hasNext()) {
-            ImageWriter imageWriter = suffixWriters.next();
-            ImageOutputStream imageOutputStream = new FileImageOutputStream(new File(destFile));
-            imageWriter.setOutput(imageOutputStream);
-            imageWriter.write(dest);
-        }
+        saveImageToFile(dest, destFile);
 
         return true;
     }
+
 }

@@ -36,6 +36,13 @@ public class Im4JavaImageOperation extends AbstractImageOperation {
         return false;
     }
 
+    public ResizeType[] getSupportedResizeTypes() {
+        return new ResizeType[] {
+                ResizeType.ADJUST_SIZE,
+                ResizeType.SCALE_TO_FILL
+        };
+    }
+
     public boolean resize(String originalFile, int newWidth, int newHeight, AbstractImageOperation.ResizeType resizeType) throws IOException {
         String destFile = getDestFileName(originalFile, "resizeTo" + Integer.toString(newWidth) + "x" + Integer.toString(newHeight) + resizeType);
 
@@ -53,7 +60,11 @@ public class Im4JavaImageOperation extends AbstractImageOperation {
             op.gravity("center");
             op.crop(newWidth,newWidth,0,0);
         } else {
-            op.resize(newWidth,newHeight);
+            if (ResizeType.ADJUST_SIZE.equals(resizeType)) {
+                op.resize(newWidth,newHeight);
+            } else {
+                op.resize(newWidth,newHeight,"!");
+            }
         }
 
         op.addImage(destFile);

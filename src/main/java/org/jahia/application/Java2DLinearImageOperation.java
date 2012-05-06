@@ -1,23 +1,13 @@
 package org.jahia.application;
 
-import org.apache.commons.io.FilenameUtils;
-
 import javax.imageio.ImageIO;
-import javax.imageio.ImageWriter;
-import javax.imageio.stream.FileImageOutputStream;
-import javax.imageio.stream.ImageOutputStream;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Iterator;
 
 /**
- * Created by IntelliJ IDEA.
- * User: loom
- * Date: 05.05.12
- * Time: 16:08
- * To change this template use File | Settings | File Templates.
+ * Java2D linear interpolation image operation implementation
  */
 public class Java2DLinearImageOperation extends AbstractJava2DImageOperation {
 
@@ -49,13 +39,7 @@ public class Java2DLinearImageOperation extends AbstractJava2DImageOperation {
         graphics2D.dispose();
 
         // Save destination image
-        Iterator<ImageWriter> suffixWriters = ImageIO.getImageWritersBySuffix(FilenameUtils.getExtension(originalFile));
-        if (suffixWriters.hasNext()) {
-            ImageWriter imageWriter = suffixWriters.next();
-            ImageOutputStream imageOutputStream = new FileImageOutputStream(new File(destFile));
-            imageWriter.setOutput(imageOutputStream);
-            imageWriter.write(dest);
-        }
+        saveImageToFile(dest, destFile);
 
         return true;
     }

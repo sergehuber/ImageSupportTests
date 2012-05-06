@@ -3,6 +3,7 @@ package org.jahia.application;
 import javax.imageio.ImageIO;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -14,12 +15,19 @@ import java.util.List;
  */
 public class ImageTests {
 
-    public static ImageOperation[] imageOperationImpls = {
+    public final static ImageOperation[] imageOperationImpls = {
         new Java2DLinearImageOperation(),
         new Java2DBicubicImageOperation(),
         new ThumnailatorImageOperation(),
         new ThumbnailatorHQImageOperation(),
         new Im4JavaImageOperation()
+    };
+
+    public static final AbstractImageOperation.ResizeType[] allResizeTypes = {
+            AbstractImageOperation.ResizeType.SCALE_TO_FILL,
+            AbstractImageOperation.ResizeType.ADJUST_SIZE,
+            AbstractImageOperation.ResizeType.ASPECT_FILL,
+            AbstractImageOperation.ResizeType.ASPECT_FIT
     };
 
     public List<ImageOperation> availableImageOperations = new ArrayList<ImageOperation>();
@@ -46,6 +54,10 @@ public class ImageTests {
         System.out.println("Testing and benchmarking image generation ("+nbLoops+" loops each, resizing to " + imageWidth + "x" + imageHeight + " with resize type = "+resizeType+")...");
 
         for (ImageOperation imageOperation : availableImageOperations) {
+            List<AbstractImageOperation.ResizeType> supportedResizeTypes = Arrays.asList(imageOperation.getSupportedResizeTypes());
+            if (!supportedResizeTypes.contains(resizeType)) {
+                continue;
+            }
             long accumTime = 0;
             for (int i=0; i < nbLoops; i++) {
                 long startTime = System.currentTimeMillis();
@@ -106,10 +118,9 @@ public class ImageTests {
 
         ImageTests imageTests = new ImageTests();
         imageTests.warmup(args[0], imageWidth, imageHeight, nbWarmupLoops);
-        imageTests.runResize(args[0], imageWidth, imageHeight, nbLoops, AbstractImageOperation.ResizeType.SCALE_TO_FILL);
-        imageTests.runResize(args[0], imageWidth, imageHeight, nbLoops, AbstractImageOperation.ResizeType.ADJUST_SIZE);
-        imageTests.runResize(args[0], imageWidth, imageHeight, nbLoops, AbstractImageOperation.ResizeType.ASPECT_FILL);
-        imageTests.runResize(args[0], imageWidth, imageHeight, nbLoops, AbstractImageOperation.ResizeType.ASPECT_FIT);
+        for (AbstractImageOperation.ResizeType resizeType : allResizeTypes) {
+            imageTests.runResize(args[0], imageWidth, imageHeight, nbLoops, resizeType);
+        }
     }
 
 }

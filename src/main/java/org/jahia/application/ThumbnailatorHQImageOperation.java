@@ -7,11 +7,7 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Created by IntelliJ IDEA.
- * User: loom
- * Date: 05.05.12
- * Time: 16:18
- * To change this template use File | Settings | File Templates.
+ * Thumbnailator high quality image operation implementation
  */
 public class ThumbnailatorHQImageOperation extends AbstractImageOperation {
 
@@ -21,6 +17,13 @@ public class ThumbnailatorHQImageOperation extends AbstractImageOperation {
 
     public boolean isAvailable() {
         return true;
+    }
+
+    public ResizeType[] getSupportedResizeTypes() {
+        return new ResizeType[] {
+                ResizeType.ADJUST_SIZE,
+                ResizeType.SCALE_TO_FILL,
+        } ;
     }
 
     public boolean resize(String originalFile, int newWidth, int newHeight, AbstractImageOperation.ResizeType resizeType) throws IOException {
