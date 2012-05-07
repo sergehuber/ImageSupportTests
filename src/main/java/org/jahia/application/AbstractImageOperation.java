@@ -100,7 +100,11 @@ public abstract class AbstractImageOperation implements ImageOperation {
 
     protected String getDestFileName(String originalFile, String operationName) {
         String originalFileBaseName = FilenameUtils.getBaseName(originalFile);
+        String originalFilePath = FilenameUtils.getPath(originalFile);
         String newPath = FilenameUtils.getPath(originalFile) + File.separator + "generatedImages";
+        if (originalFilePath == null || "".equals(originalFilePath) ) {
+            newPath = "generatedImages";
+        }
         new File(newPath).mkdirs();
         return newPath + File.separator + originalFileBaseName + "." + getImplementationName() + "." + operationName + "." + FilenameUtils.getExtension(originalFile);
     }
