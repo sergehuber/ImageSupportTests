@@ -8,11 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Created by IntelliJ IDEA.
- * User: loom
- * Date: 03.05.12
- * Time: 20:32
- * To change this template use File | Settings | File Templates.
+ * Main image test class
  */
 public class ImageTests {
 
@@ -113,7 +109,7 @@ public class ImageTests {
         int nbWarmupLoops = 100;
 
         if (args == null || args.length == 0) {
-            System.out.println("Syntax : ImageSupportTests IMAGE_NAME [NB_LOOPS] [NB_WARMUP_LOOPS] [WIDTH] [HEIGHT]");
+            System.out.println("Syntax : ImageSupportTests FILE_OR_DIRECTORY [NB_LOOPS] [NB_WARMUP_LOOPS] [WIDTH] [HEIGHT]");
             Runtime.getRuntime().exit(1);
             return;
         }

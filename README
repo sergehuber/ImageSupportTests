@@ -19,13 +19,428 @@ which will show you the command line syntax
 Here is an example output from the tool :
 
 > java -jar ImageSupportTests-1.0-jar-with-dependencies.jar logo-acme.png
-VM supported read image types = image/png,image/jpeg,image/x-png,image/vnd.wap.wbmp,image/gif,image/bmp
-VM supported write image types = image/png,image/jpeg,image/x-png,image/vnd.wap.wbmp,image/bmp,image/gif
+VM supported read image types = image/jpeg,image/png,image/x-png,image/vnd.wap.wbmp,image/bmp,image/gif
+VM supported write image types = image/jpeg,image/png,image/x-png,image/vnd.wap.wbmp,image/gif,image/bmp
 Warming up Java VM with 100 warmup loops...
-Testing and benchmarking image generation (100 loops each, resizing to 160x160)...
-Accumulated time for Thumbnailator default quality=1345ms, average=13.45ms
-Accumulated time for Thumbnailator high quality   =1471ms, average=14.71ms
-Accumulated time for Java2D linear interpolation  =1379ms, average=13.79ms
-Accumulated time for Java2D bicubic interpolation =1425ms, average=14.25ms
-Accumulated time for Im4Java                      =866ms, average=8.66ms
+Testing and benchmarking image resizing for logo-acme.png (100 loops each, resizing to 144x144 with resize type = SCALE_TO_FILL)...
+Accumulated time for Java2DLinear=1360ms, average=13.6ms
+Accumulated time for Java2DBicubic=1495ms, average=14.95ms
+Accumulated time for Thumbnailator=1397ms, average=13.97ms
+Accumulated time for ThumbnailatorHQ=1580ms, average=15.8ms
+Accumulated time for Im4Java=2141ms, average=21.41ms
+Accumulated time for ImageJAndJava2D=1709ms, average=17.09ms
+Testing and benchmarking image resizing for logo-acme.png (100 loops each, resizing to 144x144 with resize type = ADJUST_SIZE)...
+Accumulated time for Java2DLinear=912ms, average=9.12ms
+Accumulated time for Java2DBicubic=1007ms, average=10.07ms
+Accumulated time for Thumbnailator=1039ms, average=10.39ms
+Accumulated time for ThumbnailatorHQ=1127ms, average=11.27ms
+Accumulated time for Im4Java=2207ms, average=22.07ms
+Accumulated time for ImageJAndJava2D=1057ms, average=10.57ms
+Testing and benchmarking image resizing for logo-acme.png (100 loops each, resizing to 144x144 with resize type = ASPECT_FILL)...
+Accumulated time for Java2DLinear=1382ms, average=13.82ms
+Accumulated time for Java2DBicubic=1626ms, average=16.26ms
+Accumulated time for Im4Java=2311ms, average=23.11ms
+Accumulated time for ImageJAndJava2D=1803ms, average=18.03ms
+Testing and benchmarking image resizing for logo-acme.png (100 loops each, resizing to 144x144 with resize type = ASPECT_FIT)...
+Accumulated time for Java2DLinear=1028ms, average=10.28ms
+Accumulated time for Java2DBicubic=1107ms, average=11.07ms
+Accumulated time for Im4Java=2265ms, average=22.65ms
+Accumulated time for ImageJAndJava2D=1095ms, average=10.95ms
+Testing and benchmarking image cropping for logo-acme.png (100 loops each, cropping from 10,10 to size 100x100)...
+Accumulated time for Java2DLinear=662ms, average=6.62ms
+Accumulated time for Java2DBicubic=541ms, average=5.41ms
+Accumulated time for Thumbnailator=571ms, average=5.71ms
+Accumulated time for ThumbnailatorHQ=581ms, average=5.81ms
+Accumulated time for Im4Java=1870ms, average=18.7ms
+Accumulated time for ImageJAndJava2D=561ms, average=5.61ms
+Testing and benchmarking image rotating for logo-acme.png (100 loops each, rotating counter clockwise)...
+Accumulated time for Java2DLinear=2832ms, average=28.32ms
+Accumulated time for Java2DBicubic=3220ms, average=32.2ms
+Accumulated time for Thumbnailator=3146ms, average=31.46ms
+Accumulated time for ThumbnailatorHQ=2920ms, average=29.2ms
+Accumulated time for Im4Java=4237ms, average=42.37ms
+Accumulated time for ImageJAndJava2D=3194ms, average=31.94ms
 
+Here is an example using a directory of test images. This will deactivate performance mode
+and generate images to valid proper image processing.
+
+> java -jar ImageSupportTests-1.0-jar-with-dependencies.jar testImages
+VM supported read image types = image/png,image/jpeg,image/x-png,image/vnd.wap.wbmp,image/gif,image/bmp
+VM supported write image types = image/jpeg,image/png,image/x-png,image/vnd.wap.wbmp,image/gif,image/bmp
+Testing and benchmarking image resizing for testImages/12062007.jpg (1 loops each, resizing to 144x144 with resize type = SCALE_TO_FILL)...
+Accumulated time for Java2DLinear=405ms, average=405.0ms
+Accumulated time for Java2DBicubic=76ms, average=76.0ms
+Accumulated time for Thumbnailator=229ms, average=229.0ms
+Accumulated time for ThumbnailatorHQ=100ms, average=100.0ms
+Accumulated time for Im4Java=177ms, average=177.0ms
+Accumulated time for ImageJAndJava2D=62ms, average=62.0ms
+Testing and benchmarking image resizing for testImages/12062007.jpg (1 loops each, resizing to 144x144 with resize type = ADJUST_SIZE)...
+Accumulated time for Java2DLinear=54ms, average=54.0ms
+Accumulated time for Java2DBicubic=52ms, average=52.0ms
+Accumulated time for Thumbnailator=93ms, average=93.0ms
+Accumulated time for ThumbnailatorHQ=48ms, average=48.0ms
+Accumulated time for Im4Java=135ms, average=135.0ms
+Accumulated time for ImageJAndJava2D=56ms, average=56.0ms
+Testing and benchmarking image resizing for testImages/12062007.jpg (1 loops each, resizing to 144x144 with resize type = ASPECT_FILL)...
+Accumulated time for Java2DLinear=50ms, average=50.0ms
+Accumulated time for Java2DBicubic=47ms, average=47.0ms
+Accumulated time for Im4Java=131ms, average=131.0ms
+Accumulated time for ImageJAndJava2D=58ms, average=58.0ms
+Testing and benchmarking image resizing for testImages/12062007.jpg (1 loops each, resizing to 144x144 with resize type = ASPECT_FIT)...
+Accumulated time for Java2DLinear=45ms, average=45.0ms
+Accumulated time for Java2DBicubic=58ms, average=58.0ms
+Accumulated time for Im4Java=134ms, average=134.0ms
+Accumulated time for ImageJAndJava2D=60ms, average=60.0ms
+Testing and benchmarking image cropping for testImages/12062007.jpg (1 loops each, cropping from 10,10 to size 100x100)...
+Accumulated time for Java2DLinear=51ms, average=51.0ms
+Accumulated time for Java2DBicubic=52ms, average=52.0ms
+Accumulated time for Thumbnailator=11ms, average=11.0ms
+Accumulated time for ThumbnailatorHQ=8ms, average=8.0ms
+Accumulated time for Im4Java=61ms, average=61.0ms
+Accumulated time for ImageJAndJava2D=58ms, average=58.0ms
+Testing and benchmarking image rotating for testImages/12062007.jpg (1 loops each, rotating counter clockwise)...
+Accumulated time for Java2DLinear=346ms, average=346.0ms
+Accumulated time for Java2DBicubic=601ms, average=601.0ms
+Accumulated time for Thumbnailator=495ms, average=495.0ms
+Accumulated time for ThumbnailatorHQ=485ms, average=485.0ms
+Accumulated time for Im4Java=297ms, average=297.0ms
+Accumulated time for ImageJAndJava2D=596ms, average=596.0ms
+Testing and benchmarking image resizing for testImages/address_book.gif (1 loops each, resizing to 144x144 with resize type = SCALE_TO_FILL)...
+Accumulated time for Java2DLinear=22ms, average=22.0ms
+Accumulated time for Java2DBicubic=10ms, average=10.0ms
+Accumulated time for Thumbnailator=11ms, average=11.0ms
+Accumulated time for ThumbnailatorHQ=8ms, average=8.0ms
+Accumulated time for Im4Java=78ms, average=78.0ms
+Accumulated time for ImageJAndJava2D=5ms, average=5.0ms
+Testing and benchmarking image resizing for testImages/address_book.gif (1 loops each, resizing to 144x144 with resize type = ADJUST_SIZE)...
+Accumulated time for Java2DLinear=4ms, average=4.0ms
+Accumulated time for Java2DBicubic=7ms, average=7.0ms
+Accumulated time for Thumbnailator=7ms, average=7.0ms
+Accumulated time for ThumbnailatorHQ=7ms, average=7.0ms
+Accumulated time for Im4Java=90ms, average=90.0ms
+Accumulated time for ImageJAndJava2D=6ms, average=6.0ms
+Testing and benchmarking image resizing for testImages/address_book.gif (1 loops each, resizing to 144x144 with resize type = ASPECT_FILL)...
+Accumulated time for Java2DLinear=4ms, average=4.0ms
+Accumulated time for Java2DBicubic=5ms, average=5.0ms
+Accumulated time for Im4Java=82ms, average=82.0ms
+Accumulated time for ImageJAndJava2D=6ms, average=6.0ms
+Testing and benchmarking image resizing for testImages/address_book.gif (1 loops each, resizing to 144x144 with resize type = ASPECT_FIT)...
+Accumulated time for Java2DLinear=4ms, average=4.0ms
+Accumulated time for Java2DBicubic=5ms, average=5.0ms
+Accumulated time for Im4Java=87ms, average=87.0ms
+Accumulated time for ImageJAndJava2D=7ms, average=7.0ms
+Testing and benchmarking image cropping for testImages/address_book.gif (1 loops each, cropping from 10,10 to size 100x100)...
+Accumulated time for Java2DLinear=3ms, average=3.0ms
+Accumulated time for Java2DBicubic=3ms, average=3.0ms
+Accumulated time for Thumbnailator=3ms, average=3.0ms
+Accumulated time for ThumbnailatorHQ=4ms, average=4.0ms
+Accumulated time for Im4Java=33ms, average=33.0ms
+Accumulated time for ImageJAndJava2D=4ms, average=4.0ms
+Testing and benchmarking image rotating for testImages/address_book.gif (1 loops each, rotating counter clockwise)...
+Accumulated time for Java2DLinear=6ms, average=6.0ms
+Accumulated time for Java2DBicubic=6ms, average=6.0ms
+Accumulated time for Thumbnailator=35ms, average=35.0ms
+Accumulated time for ThumbnailatorHQ=18ms, average=18.0ms
+Accumulated time for Im4Java=50ms, average=50.0ms
+Accumulated time for ImageJAndJava2D=9ms, average=9.0ms
+Testing and benchmarking image resizing for testImages/car_barillette.JPG (1 loops each, resizing to 144x144 with resize type = SCALE_TO_FILL)...
+Accumulated time for Java2DLinear=46ms, average=46.0ms
+Accumulated time for Java2DBicubic=51ms, average=51.0ms
+Accumulated time for Thumbnailator=79ms, average=79.0ms
+Accumulated time for ThumbnailatorHQ=56ms, average=56.0ms
+Accumulated time for Im4Java=102ms, average=102.0ms
+Accumulated time for ImageJAndJava2D=47ms, average=47.0ms
+Testing and benchmarking image resizing for testImages/car_barillette.JPG (1 loops each, resizing to 144x144 with resize type = ADJUST_SIZE)...
+Accumulated time for Java2DLinear=55ms, average=55.0ms
+Accumulated time for Java2DBicubic=44ms, average=44.0ms
+Accumulated time for Thumbnailator=90ms, average=90.0ms
+Accumulated time for ThumbnailatorHQ=49ms, average=49.0ms
+Accumulated time for Im4Java=104ms, average=104.0ms
+Accumulated time for ImageJAndJava2D=67ms, average=67.0ms
+Testing and benchmarking image resizing for testImages/car_barillette.JPG (1 loops each, resizing to 144x144 with resize type = ASPECT_FILL)...
+Accumulated time for Java2DLinear=54ms, average=54.0ms
+Accumulated time for Java2DBicubic=65ms, average=65.0ms
+Accumulated time for Im4Java=111ms, average=111.0ms
+Accumulated time for ImageJAndJava2D=46ms, average=46.0ms
+Testing and benchmarking image resizing for testImages/car_barillette.JPG (1 loops each, resizing to 144x144 with resize type = ASPECT_FIT)...
+Accumulated time for Java2DLinear=54ms, average=54.0ms
+Accumulated time for Java2DBicubic=46ms, average=46.0ms
+Accumulated time for Im4Java=99ms, average=99.0ms
+Accumulated time for ImageJAndJava2D=48ms, average=48.0ms
+Testing and benchmarking image cropping for testImages/car_barillette.JPG (1 loops each, cropping from 10,10 to size 100x100)...
+Accumulated time for Java2DLinear=52ms, average=52.0ms
+Accumulated time for Java2DBicubic=45ms, average=45.0ms
+Accumulated time for Thumbnailator=7ms, average=7.0ms
+Accumulated time for ThumbnailatorHQ=7ms, average=7.0ms
+Accumulated time for Im4Java=52ms, average=52.0ms
+Accumulated time for ImageJAndJava2D=54ms, average=54.0ms
+Testing and benchmarking image rotating for testImages/car_barillette.JPG (1 loops each, rotating counter clockwise)...
+Accumulated time for Java2DLinear=259ms, average=259.0ms
+Accumulated time for Java2DBicubic=469ms, average=469.0ms
+Accumulated time for Thumbnailator=396ms, average=396.0ms
+Accumulated time for ThumbnailatorHQ=435ms, average=435.0ms
+Accumulated time for Im4Java=299ms, average=299.0ms
+Accumulated time for ImageJAndJava2D=422ms, average=422.0ms
+Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.application.Java2DLinearImageOperation)
+Testing and benchmarking image resizing for testImages/cg71_intranet_screenshot.tiff (1 loops each, resizing to 144x144 with resize type = SCALE_TO_FILL)...
+Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.application.Java2DBicubicImageOperation)
+Accumulated time for Java2DLinear=1ms, average=1.0ms
+Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.application.ThumnailatorImageOperation)
+Accumulated time for Java2DBicubic=0ms, average=0.0ms
+Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.application.ThumbnailatorHQImageOperation)
+Accumulated time for Thumbnailator=0ms, average=0.0ms
+Accumulated time for ThumbnailatorHQ=0ms, average=0.0ms
+Accumulated time for Im4Java=142ms, average=142.0ms
+Using ImageJ code for file testImages/cg71_intranet_screenshot.tiff...
+Accumulated time for ImageJAndJava2D=496ms, average=496.0ms
+Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.application.Java2DLinearImageOperation)
+Testing and benchmarking image resizing for testImages/cg71_intranet_screenshot.tiff (1 loops each, resizing to 144x144 with resize type = ADJUST_SIZE)...
+Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.application.Java2DBicubicImageOperation)
+Accumulated time for Java2DLinear=0ms, average=0.0ms
+Accumulated time for Java2DBicubic=0ms, average=0.0ms
+Accumulated time for Thumbnailator=0ms, average=0.0ms
+Accumulated time for ThumbnailatorHQ=0ms, average=0.0ms
+Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.application.ThumnailatorImageOperation)
+Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.application.ThumbnailatorHQImageOperation)
+Accumulated time for Im4Java=149ms, average=149.0ms
+Using ImageJ code for file testImages/cg71_intranet_screenshot.tiff...
+Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.application.Java2DLinearImageOperation)
+Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.application.Java2DBicubicImageOperation)
+Accumulated time for ImageJAndJava2D=295ms, average=295.0ms
+Testing and benchmarking image resizing for testImages/cg71_intranet_screenshot.tiff (1 loops each, resizing to 144x144 with resize type = ASPECT_FILL)...
+Accumulated time for Java2DLinear=0ms, average=0.0ms
+Accumulated time for Java2DBicubic=0ms, average=0.0ms
+Accumulated time for Im4Java=146ms, average=146.0ms
+Using ImageJ code for file testImages/cg71_intranet_screenshot.tiff...
+Accumulated time for ImageJAndJava2D=278ms, average=278.0ms
+Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.application.Java2DLinearImageOperation)
+Testing and benchmarking image resizing for testImages/cg71_intranet_screenshot.tiff (1 loops each, resizing to 144x144 with resize type = ASPECT_FIT)...
+Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.application.Java2DBicubicImageOperation)
+Accumulated time for Java2DLinear=1ms, average=1.0ms
+Accumulated time for Java2DBicubic=0ms, average=0.0ms
+Accumulated time for Im4Java=156ms, average=156.0ms
+Using ImageJ code for file testImages/cg71_intranet_screenshot.tiff...
+Accumulated time for ImageJAndJava2D=278ms, average=278.0ms
+Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.application.Java2DLinearImageOperation)
+Testing and benchmarking image cropping for testImages/cg71_intranet_screenshot.tiff (1 loops each, cropping from 10,10 to size 100x100)...
+Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.application.Java2DBicubicImageOperation)
+Accumulated time for Java2DLinear=0ms, average=0.0ms
+Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.application.ThumnailatorImageOperation)
+Accumulated time for Java2DBicubic=1ms, average=1.0ms
+Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.application.ThumbnailatorHQImageOperation)
+Accumulated time for Thumbnailator=0ms, average=0.0ms
+Accumulated time for ThumbnailatorHQ=0ms, average=0.0ms
+Accumulated time for Im4Java=90ms, average=90.0ms
+Using ImageJ code for file testImages/cg71_intranet_screenshot.tiff...
+Accumulated time for ImageJAndJava2D=182ms, average=182.0ms
+Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.application.Java2DLinearImageOperation)
+Testing and benchmarking image rotating for testImages/cg71_intranet_screenshot.tiff (1 loops each, rotating counter clockwise)...
+Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.application.Java2DLinearImageOperation)
+Accumulated time for Java2DLinear=0ms, average=0.0ms
+Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.application.Java2DBicubicImageOperation)
+Accumulated time for Java2DBicubic=0ms, average=0.0ms
+Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.application.Java2DBicubicImageOperation)
+Accumulated time for Thumbnailator=0ms, average=0.0ms
+Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.application.ThumnailatorImageOperation)
+Accumulated time for ThumbnailatorHQ=1ms, average=1.0ms
+Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.application.ThumnailatorImageOperation)
+Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.application.ThumbnailatorHQImageOperation)
+Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.application.ThumbnailatorHQImageOperation)
+Accumulated time for Im4Java=404ms, average=404.0ms
+Using ImageJ code for file testImages/cg71_intranet_screenshot.tiff...
+Using ImageJ code for file testImages/cg71_intranet_screenshot.tiff...
+Accumulated time for ImageJAndJava2D=442ms, average=442.0ms
+Testing and benchmarking image resizing for testImages/logo-acme.png (1 loops each, resizing to 144x144 with resize type = SCALE_TO_FILL)...
+Accumulated time for Java2DLinear=42ms, average=42.0ms
+Accumulated time for Java2DBicubic=28ms, average=28.0ms
+Accumulated time for Thumbnailator=25ms, average=25.0ms
+Accumulated time for ThumbnailatorHQ=25ms, average=25.0ms
+Accumulated time for Im4Java=26ms, average=26.0ms
+Accumulated time for ImageJAndJava2D=24ms, average=24.0ms
+Testing and benchmarking image resizing for testImages/logo-acme.png (1 loops each, resizing to 144x144 with resize type = ADJUST_SIZE)...
+Accumulated time for Java2DLinear=13ms, average=13.0ms
+Accumulated time for Java2DBicubic=14ms, average=14.0ms
+Accumulated time for Thumbnailator=16ms, average=16.0ms
+Accumulated time for ThumbnailatorHQ=15ms, average=15.0ms
+Accumulated time for Im4Java=27ms, average=27.0ms
+Accumulated time for ImageJAndJava2D=15ms, average=15.0ms
+Testing and benchmarking image resizing for testImages/logo-acme.png (1 loops each, resizing to 144x144 with resize type = ASPECT_FILL)...
+Accumulated time for Java2DLinear=22ms, average=22.0ms
+Accumulated time for Java2DBicubic=23ms, average=23.0ms
+Accumulated time for Im4Java=36ms, average=36.0ms
+Accumulated time for ImageJAndJava2D=20ms, average=20.0ms
+Testing and benchmarking image resizing for testImages/logo-acme.png (1 loops each, resizing to 144x144 with resize type = ASPECT_FIT)...
+Accumulated time for Java2DLinear=12ms, average=12.0ms
+Accumulated time for Java2DBicubic=14ms, average=14.0ms
+Accumulated time for Im4Java=28ms, average=28.0ms
+Accumulated time for ImageJAndJava2D=15ms, average=15.0ms
+Testing and benchmarking image cropping for testImages/logo-acme.png (1 loops each, cropping from 10,10 to size 100x100)...
+Accumulated time for Java2DLinear=8ms, average=8.0ms
+Accumulated time for Java2DBicubic=8ms, average=8.0ms
+Accumulated time for Thumbnailator=9ms, average=9.0ms
+Accumulated time for ThumbnailatorHQ=10ms, average=10.0ms
+Accumulated time for Im4Java=24ms, average=24.0ms
+Accumulated time for ImageJAndJava2D=9ms, average=9.0ms
+Testing and benchmarking image rotating for testImages/logo-acme.png (1 loops each, rotating counter clockwise)...
+Accumulated time for Java2DLinear=39ms, average=39.0ms
+Accumulated time for Java2DBicubic=44ms, average=44.0ms
+Accumulated time for Thumbnailator=70ms, average=70.0ms
+Accumulated time for ThumbnailatorHQ=48ms, average=48.0ms
+Accumulated time for Im4Java=53ms, average=53.0ms
+Accumulated time for ImageJAndJava2D=46ms, average=46.0ms
+Testing and benchmarking image resizing for testImages/logo.wbmp (1 loops each, resizing to 144x144 with resize type = SCALE_TO_FILL)...
+Accumulated time for Java2DLinear=79ms, average=79.0ms
+Accumulated time for Java2DBicubic=24ms, average=24.0ms
+Accumulated time for Thumbnailator=13ms, average=13.0ms
+Accumulated time for ThumbnailatorHQ=8ms, average=8.0ms
+Accumulated time for Im4Java=42ms, average=42.0ms
+Accumulated time for ImageJAndJava2D=7ms, average=7.0ms
+Testing and benchmarking image resizing for testImages/logo.wbmp (1 loops each, resizing to 144x144 with resize type = ADJUST_SIZE)...
+Accumulated time for Java2DLinear=3ms, average=3.0ms
+Accumulated time for Java2DBicubic=3ms, average=3.0ms
+Accumulated time for Thumbnailator=4ms, average=4.0ms
+Accumulated time for ThumbnailatorHQ=3ms, average=3.0ms
+Accumulated time for Im4Java=33ms, average=33.0ms
+Accumulated time for ImageJAndJava2D=4ms, average=4.0ms
+Testing and benchmarking image resizing for testImages/logo.wbmp (1 loops each, resizing to 144x144 with resize type = ASPECT_FILL)...
+Accumulated time for Java2DLinear=5ms, average=5.0ms
+Accumulated time for Java2DBicubic=6ms, average=6.0ms
+Accumulated time for Im4Java=38ms, average=38.0ms
+Accumulated time for ImageJAndJava2D=7ms, average=7.0ms
+Testing and benchmarking image resizing for testImages/logo.wbmp (1 loops each, resizing to 144x144 with resize type = ASPECT_FIT)...
+Accumulated time for Java2DLinear=3ms, average=3.0ms
+Accumulated time for Java2DBicubic=4ms, average=4.0ms
+Accumulated time for Im4Java=48ms, average=48.0ms
+Accumulated time for ImageJAndJava2D=3ms, average=3.0ms
+Testing and benchmarking image cropping for testImages/logo.wbmp (1 loops each, cropping from 10,10 to size 100x100)...
+Accumulated time for Java2DLinear=1ms, average=1.0ms
+Accumulated time for Java2DBicubic=1ms, average=1.0ms
+Accumulated time for Thumbnailator=2ms, average=2.0ms
+Accumulated time for ThumbnailatorHQ=3ms, average=3.0ms
+Accumulated time for Im4Java=21ms, average=21.0ms
+Accumulated time for ImageJAndJava2D=3ms, average=3.0ms
+Testing and benchmarking image rotating for testImages/logo.wbmp (1 loops each, rotating counter clockwise)...
+Accumulated time for Java2DLinear=4ms, average=4.0ms
+Accumulated time for Java2DBicubic=6ms, average=6.0ms
+Error while generating image for testImages/logo.wbmp: Only integral single-band bilevel image is supported.(org.jahia.application.ThumnailatorImageOperation)
+Error while generating image for testImages/logo.wbmp: Only integral single-band bilevel image is supported.(org.jahia.application.ThumnailatorImageOperation)
+Accumulated time for Thumbnailator=10ms, average=10.0ms
+Error while generating image for testImages/logo.wbmp: Only integral single-band bilevel image is supported.(org.jahia.application.ThumbnailatorHQImageOperation)
+Error while generating image for testImages/logo.wbmp: Only integral single-band bilevel image is supported.(org.jahia.application.ThumbnailatorHQImageOperation)
+Accumulated time for ThumbnailatorHQ=6ms, average=6.0ms
+Accumulated time for Im4Java=42ms, average=42.0ms
+Accumulated time for ImageJAndJava2D=4ms, average=4.0ms
+Testing and benchmarking image resizing for testImages/me.jpg (1 loops each, resizing to 144x144 with resize type = SCALE_TO_FILL)...
+Accumulated time for Java2DLinear=38ms, average=38.0ms
+Accumulated time for Java2DBicubic=28ms, average=28.0ms
+Accumulated time for Thumbnailator=30ms, average=30.0ms
+Accumulated time for ThumbnailatorHQ=34ms, average=34.0ms
+Accumulated time for Im4Java=30ms, average=30.0ms
+Accumulated time for ImageJAndJava2D=42ms, average=42.0ms
+Testing and benchmarking image resizing for testImages/me.jpg (1 loops each, resizing to 144x144 with resize type = ADJUST_SIZE)...
+Accumulated time for Java2DLinear=34ms, average=34.0ms
+Accumulated time for Java2DBicubic=33ms, average=33.0ms
+Accumulated time for Thumbnailator=33ms, average=33.0ms
+Accumulated time for ThumbnailatorHQ=33ms, average=33.0ms
+Accumulated time for Im4Java=28ms, average=28.0ms
+Accumulated time for ImageJAndJava2D=27ms, average=27.0ms
+Testing and benchmarking image resizing for testImages/me.jpg (1 loops each, resizing to 144x144 with resize type = ASPECT_FILL)...
+Accumulated time for Java2DLinear=25ms, average=25.0ms
+Accumulated time for Java2DBicubic=26ms, average=26.0ms
+Accumulated time for Im4Java=26ms, average=26.0ms
+Accumulated time for ImageJAndJava2D=27ms, average=27.0ms
+Testing and benchmarking image resizing for testImages/me.jpg (1 loops each, resizing to 144x144 with resize type = ASPECT_FIT)...
+Accumulated time for Java2DLinear=25ms, average=25.0ms
+Accumulated time for Java2DBicubic=27ms, average=27.0ms
+Accumulated time for Im4Java=28ms, average=28.0ms
+Accumulated time for ImageJAndJava2D=26ms, average=26.0ms
+Testing and benchmarking image cropping for testImages/me.jpg (1 loops each, cropping from 10,10 to size 100x100)...
+Accumulated time for Java2DLinear=30ms, average=30.0ms
+Accumulated time for Java2DBicubic=28ms, average=28.0ms
+Accumulated time for Thumbnailator=15ms, average=15.0ms
+Accumulated time for ThumbnailatorHQ=16ms, average=16.0ms
+Accumulated time for Im4Java=22ms, average=22.0ms
+Accumulated time for ImageJAndJava2D=32ms, average=32.0ms
+Testing and benchmarking image rotating for testImages/me.jpg (1 loops each, rotating counter clockwise)...
+Accumulated time for Java2DLinear=58ms, average=58.0ms
+Accumulated time for Java2DBicubic=68ms, average=68.0ms
+Accumulated time for Thumbnailator=69ms, average=69.0ms
+Accumulated time for ThumbnailatorHQ=75ms, average=75.0ms
+Accumulated time for Im4Java=49ms, average=49.0ms
+Accumulated time for ImageJAndJava2D=69ms, average=69.0ms
+Testing and benchmarking image resizing for testImages/Ranna003.jpg (1 loops each, resizing to 144x144 with resize type = SCALE_TO_FILL)...
+Accumulated time for Java2DLinear=77ms, average=77.0ms
+Accumulated time for Java2DBicubic=56ms, average=56.0ms
+Accumulated time for Thumbnailator=114ms, average=114.0ms
+Accumulated time for ThumbnailatorHQ=85ms, average=85.0ms
+Accumulated time for Im4Java=178ms, average=178.0ms
+Accumulated time for ImageJAndJava2D=84ms, average=84.0ms
+Testing and benchmarking image resizing for testImages/Ranna003.jpg (1 loops each, resizing to 144x144 with resize type = ADJUST_SIZE)...
+Accumulated time for Java2DLinear=69ms, average=69.0ms
+Accumulated time for Java2DBicubic=64ms, average=64.0ms
+Accumulated time for Thumbnailator=109ms, average=109.0ms
+Accumulated time for ThumbnailatorHQ=72ms, average=72.0ms
+Accumulated time for Im4Java=152ms, average=152.0ms
+Accumulated time for ImageJAndJava2D=62ms, average=62.0ms
+Testing and benchmarking image resizing for testImages/Ranna003.jpg (1 loops each, resizing to 144x144 with resize type = ASPECT_FILL)...
+Accumulated time for Java2DLinear=70ms, average=70.0ms
+Accumulated time for Java2DBicubic=64ms, average=64.0ms
+Accumulated time for Im4Java=157ms, average=157.0ms
+Accumulated time for ImageJAndJava2D=92ms, average=92.0ms
+Testing and benchmarking image resizing for testImages/Ranna003.jpg (1 loops each, resizing to 144x144 with resize type = ASPECT_FIT)...
+Accumulated time for Java2DLinear=75ms, average=75.0ms
+Accumulated time for Java2DBicubic=79ms, average=79.0ms
+Accumulated time for Im4Java=158ms, average=158.0ms
+Accumulated time for ImageJAndJava2D=78ms, average=78.0ms
+Testing and benchmarking image cropping for testImages/Ranna003.jpg (1 loops each, cropping from 10,10 to size 100x100)...
+Accumulated time for Java2DLinear=60ms, average=60.0ms
+Accumulated time for Java2DBicubic=62ms, average=62.0ms
+Accumulated time for Thumbnailator=8ms, average=8.0ms
+Accumulated time for ThumbnailatorHQ=7ms, average=7.0ms
+Accumulated time for Im4Java=78ms, average=78.0ms
+Accumulated time for ImageJAndJava2D=69ms, average=69.0ms
+Testing and benchmarking image rotating for testImages/Ranna003.jpg (1 loops each, rotating counter clockwise)...
+Accumulated time for Java2DLinear=395ms, average=395.0ms
+Accumulated time for Java2DBicubic=676ms, average=676.0ms
+Accumulated time for Thumbnailator=625ms, average=625.0ms
+Accumulated time for ThumbnailatorHQ=555ms, average=555.0ms
+Accumulated time for Im4Java=385ms, average=385.0ms
+Accumulated time for ImageJAndJava2D=799ms, average=799.0ms
+Testing and benchmarking image resizing for testImages/splash.bmp (1 loops each, resizing to 144x144 with resize type = SCALE_TO_FILL)...
+Accumulated time for Java2DLinear=7ms, average=7.0ms
+Accumulated time for Java2DBicubic=7ms, average=7.0ms
+Accumulated time for Thumbnailator=15ms, average=15.0ms
+Accumulated time for ThumbnailatorHQ=15ms, average=15.0ms
+Accumulated time for Im4Java=39ms, average=39.0ms
+Accumulated time for ImageJAndJava2D=35ms, average=35.0ms
+Testing and benchmarking image resizing for testImages/splash.bmp (1 loops each, resizing to 144x144 with resize type = ADJUST_SIZE)...
+Accumulated time for Java2DLinear=5ms, average=5.0ms
+Accumulated time for Java2DBicubic=20ms, average=20.0ms
+Accumulated time for Thumbnailator=19ms, average=19.0ms
+Accumulated time for ThumbnailatorHQ=8ms, average=8.0ms
+Accumulated time for Im4Java=33ms, average=33.0ms
+Accumulated time for ImageJAndJava2D=9ms, average=9.0ms
+Testing and benchmarking image resizing for testImages/splash.bmp (1 loops each, resizing to 144x144 with resize type = ASPECT_FILL)...
+Accumulated time for Java2DLinear=10ms, average=10.0ms
+Accumulated time for Java2DBicubic=8ms, average=8.0ms
+Accumulated time for Im4Java=35ms, average=35.0ms
+Accumulated time for ImageJAndJava2D=7ms, average=7.0ms
+Testing and benchmarking image resizing for testImages/splash.bmp (1 loops each, resizing to 144x144 with resize type = ASPECT_FIT)...
+Accumulated time for Java2DLinear=11ms, average=11.0ms
+Accumulated time for Java2DBicubic=6ms, average=6.0ms
+Accumulated time for Im4Java=31ms, average=31.0ms
+Accumulated time for ImageJAndJava2D=7ms, average=7.0ms
+Testing and benchmarking image cropping for testImages/splash.bmp (1 loops each, cropping from 10,10 to size 100x100)...
+Accumulated time for Java2DLinear=4ms, average=4.0ms
+Accumulated time for Java2DBicubic=4ms, average=4.0ms
+Accumulated time for Thumbnailator=8ms, average=8.0ms
+Accumulated time for ThumbnailatorHQ=7ms, average=7.0ms
+Accumulated time for Im4Java=21ms, average=21.0ms
+Accumulated time for ImageJAndJava2D=5ms, average=5.0ms
+Testing and benchmarking image rotating for testImages/splash.bmp (1 loops each, rotating counter clockwise)...
+Accumulated time for Java2DLinear=59ms, average=59.0ms
+Accumulated time for Java2DBicubic=99ms, average=99.0ms
+Accumulated time for Thumbnailator=121ms, average=121.0ms
+Accumulated time for ThumbnailatorHQ=110ms, average=110.0ms
+Accumulated time for Im4Java=70ms, average=70.0ms
+Accumulated time for ImageJAndJava2D=79ms, average=79.0ms
