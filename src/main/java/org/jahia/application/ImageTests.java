@@ -1,6 +1,7 @@
 package org.jahia.application;
 
 import javax.imageio.ImageIO;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,7 +21,8 @@ public class ImageTests {
         new Java2DBicubicImageOperation(),
         new ThumnailatorImageOperation(),
         new ThumbnailatorHQImageOperation(),
-        new Im4JavaImageOperation()
+        new Im4JavaImageOperation(),
+        new ImageJAndJava2DImageOperation()
     };
 
     public static final AbstractImageOperation.ResizeType[] allResizeTypes = {
@@ -51,7 +53,7 @@ public class ImageTests {
     }
 
     public void runResize(String originalFile, int imageWidth, int imageHeight, int nbLoops, AbstractImageOperation.ResizeType resizeType) throws IOException {
-        System.out.println("Testing and benchmarking image generation ("+nbLoops+" loops each, resizing to " + imageWidth + "x" + imageHeight + " with resize type = "+resizeType+")...");
+        System.out.println("Testing and benchmarking image resizing for "+originalFile+" ("+nbLoops+" loops each, resizing to " + imageWidth + "x" + imageHeight + " with resize type = "+resizeType+")...");
 
         for (ImageOperation imageOperation : availableImageOperations) {
             List<AbstractImageOperation.ResizeType> supportedResizeTypes = Arrays.asList(imageOperation.getSupportedResizeTypes());
@@ -68,7 +70,39 @@ public class ImageTests {
             double averageTime = accumTime / ((double)nbLoops);
             System.out.println("Accumulated time for "+imageOperation.getImplementationName()+"=" + accumTime + "ms, average=" + averageTime + "ms");
         }
+    }
 
+    public void runCrop(String originalFile, int left, int top, int width, int height, int nbLoops) throws IOException {
+        System.out.println("Testing and benchmarking image cropping for "+originalFile+" ("+nbLoops+" loops each, cropping from "+left+","+top+" to size " + width + "x" + height +")...");
+
+        for (ImageOperation imageOperation : availableImageOperations) {
+            long accumTime = 0;
+            for (int i=0; i < nbLoops; i++) {
+                long startTime = System.currentTimeMillis();
+                imageOperation.crop(originalFile, left, top, width, height);
+                long operationTotalTime = System.currentTimeMillis() - startTime;
+                accumTime += operationTotalTime;
+            }
+            double averageTime = accumTime / ((double)nbLoops);
+            System.out.println("Accumulated time for "+imageOperation.getImplementationName()+"=" + accumTime + "ms, average=" + averageTime + "ms");
+        }
+    }
+
+    public void runRotate(String originalFile, int nbLoops) throws IOException {
+        System.out.println("Testing and benchmarking image rotating for "+originalFile+" ("+nbLoops+" loops each, rotating counter clockwise)...");
+
+        for (ImageOperation imageOperation : availableImageOperations) {
+            long accumTime = 0;
+            for (int i=0; i < nbLoops; i++) {
+                long startTime = System.currentTimeMillis();
+                imageOperation.rotate(originalFile, false);
+                imageOperation.rotate(originalFile, true);
+                long operationTotalTime = System.currentTimeMillis() - startTime;
+                accumTime += operationTotalTime;
+            }
+            double averageTime = accumTime / ((double)nbLoops);
+            System.out.println("Accumulated time for "+imageOperation.getImplementationName()+"=" + accumTime + "ms, average=" + averageTime + "ms");
+        }
     }
 
     public static void main(String[] args) throws IOException {
@@ -117,9 +151,27 @@ public class ImageTests {
         System.out.println("VM supported write image types = " + writeMimeTypes);
 
         ImageTests imageTests = new ImageTests();
-        imageTests.warmup(args[0], imageWidth, imageHeight, nbWarmupLoops);
-        for (AbstractImageOperation.ResizeType resizeType : allResizeTypes) {
-            imageTests.runResize(args[0], imageWidth, imageHeight, nbLoops, resizeType);
+        File sourceFile = new File(args[0]);
+
+        if (sourceFile.isFile()) {
+            imageTests.warmup(args[0], imageWidth, imageHeight, nbWarmupLoops);
+            for (AbstractImageOperation.ResizeType resizeType : allResizeTypes) {
+                imageTests.runResize(args[0], imageWidth, imageHeight, nbLoops, resizeType);
+            }
+            imageTests.runCrop(args[0], 10, 10, 100, 100, nbLoops);
+            imageTests.runRotate(args[0], nbLoops);
+        } else {
+            File[] directoryFiles = sourceFile.listFiles();
+            for (File directoryFile : directoryFiles) {
+                if (directoryFile.getName().startsWith(".") || directoryFile.isDirectory()) {
+                    continue;
+                }
+                for (AbstractImageOperation.ResizeType resizeType : allResizeTypes) {
+                    imageTests.runResize(directoryFile.getPath(), imageWidth, imageHeight, 1, resizeType);
+                }
+                imageTests.runCrop(directoryFile.getPath(), 10, 10, 100, 100, 1);
+                imageTests.runRotate(directoryFile.getPath(), 1);
+            }
         }
     }
 

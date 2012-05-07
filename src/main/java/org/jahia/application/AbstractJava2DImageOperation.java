@@ -3,6 +3,7 @@ package org.jahia.application;
 import org.apache.commons.io.FilenameUtils;
 
 import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageOutputStream;
@@ -21,14 +22,16 @@ public abstract class AbstractJava2DImageOperation extends AbstractImageOperatio
         return true;
     }
 
-    protected Graphics2D getGraphics2D(BufferedImage dest) {
-        // Paint source image into the destination, scaling as needed
-        Graphics2D graphics2D = dest.createGraphics();
-        graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-        RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-        RenderingHints.VALUE_ANTIALIAS_ON);
-        return graphics2D;
+    protected abstract Graphics2D getGraphics2D(BufferedImage bufferedImage);
+
+    protected boolean canRead(String sourceFile) {
+        String sourceFileExtension = FilenameUtils.getExtension(sourceFile);
+        Iterator<ImageReader> imageReaderIterator = ImageIO.getImageReadersBySuffix(sourceFileExtension.toLowerCase());
+        if (imageReaderIterator.hasNext()) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     protected void saveImageToFile(BufferedImage dest, String destFile) throws IOException {
@@ -41,7 +44,7 @@ public abstract class AbstractJava2DImageOperation extends AbstractImageOperatio
             imageWriter.write(dest);
             imageOutputStream.close();
         } else {
-            System.err.println("Couldn't find a writer for extension : " + fileExtension);
+            System.err.println("Couldn't find a writer for extension : " + fileExtension + "(" + this.getClass().getName() + ")");
         }
     }
 
@@ -53,4 +56,94 @@ public abstract class AbstractJava2DImageOperation extends AbstractImageOperatio
                 ResizeType.ASPECT_FIT
         } ;
     }
+
+    public boolean resize(String originalFile, int newWidth, int newHeight, AbstractImageOperation.ResizeType resizeType) throws IOException {
+
+        if (!canRead(originalFile)) {
+            System.err.println("Image format for file " + originalFile + " is not supported by this implementation (" + this.getClass().getName() + ")");
+            return false;
+        }
+
+        // Read image to scale
+        BufferedImage originalImage = ImageIO.read(new File(originalFile));
+
+        ResizeCoords resizeCoords = getResizeCoords(resizeType, originalImage.getWidth(), originalImage.getHeight(), newWidth, newHeight);
+        if (ResizeType.ADJUST_SIZE.equals(resizeType)) {
+            newWidth = resizeCoords.getTargetWidth();
+            newHeight = resizeCoords.getTargetHeight();
+        }
+        String destFile = getDestFileName(originalFile, "resizeTo" + Integer.toString(newWidth) + "x" + Integer.toString(newHeight) + resizeType);
+
+        BufferedImage dest = new BufferedImage(newWidth, newHeight, originalImage.getType());
+
+        // Paint source image into the destination, scaling as needed
+        Graphics2D graphics2D = getGraphics2D(dest);
+
+        graphics2D.drawImage(originalImage,
+                resizeCoords.getTargetStartPosX(), resizeCoords.getTargetStartPosY(),
+                resizeCoords.getTargetStartPosX() + resizeCoords.getTargetWidth(), resizeCoords.getTargetStartPosY() + resizeCoords.getTargetHeight(),
+                resizeCoords.getSourceStartPosX(), resizeCoords.getSourceStartPosY(),
+                resizeCoords.getSourceStartPosX() + resizeCoords.getSourceWidth(), resizeCoords.getSourceStartPosY() + resizeCoords.getSourceHeight(),
+                null);
+        graphics2D.dispose();
+
+        // Save destination image
+        saveImageToFile(dest, destFile);
+
+        return true;
+    }
+
+    public boolean crop(String originalFile, int left, int top, int width, int height) throws IOException {
+
+        if (!canRead(originalFile)) {
+            System.err.println("Image format for file " + originalFile + " is not supported by this implementation (" + this.getClass().getName() + ")");
+            return false;
+        }
+
+        String destFile = getDestFileName(originalFile, "cropTo" + Integer.toString(width) + "x" + Integer.toString(height));
+
+        // Read image to scale
+        BufferedImage originalImage = ImageIO.read(new File(originalFile));
+
+        BufferedImage clipping = new BufferedImage(width, height, originalImage.getType());
+        Graphics2D area = getGraphics2D(clipping);
+        area.drawImage(originalImage, 0, 0, clipping.getWidth(), clipping.getHeight(), left, top, left + clipping.getWidth(),
+            top + clipping.getHeight(), null);
+        area.dispose();
+
+        // Save destination image
+        saveImageToFile(clipping, destFile);
+
+        return true;
+    }
+
+    public boolean rotate(String originalFile, boolean clockwise) throws IOException {
+
+        if (!canRead(originalFile)) {
+            System.err.println("Image format for file " + originalFile + " is not supported by this implementation (" + this.getClass().getName() + ")");
+            return false;
+        }
+
+        BufferedImage originalImage = ImageIO.read(new File(originalFile));
+        String direction = clockwise ? "Clockwise" : "Counterclockwise";
+
+        String destFile = getDestFileName(originalFile, "rotate" + direction);
+
+        BufferedImage dest = new BufferedImage(originalImage.getHeight(), originalImage.getWidth(), originalImage.getType());
+        // Paint source image into the destination, scaling as needed
+        Graphics2D graphics2D = getGraphics2D(dest);
+
+        double angle = Math.toRadians(clockwise ? 90: -90);
+        double sin = Math.abs(Math.sin(angle)), cos = Math.abs(Math.cos(angle));
+        int w = originalImage.getWidth(), h = originalImage.getHeight();
+        int neww = (int)Math.floor(w*cos+h*sin), newh = (int)Math.floor(h*cos+w*sin);
+        graphics2D.translate((neww-w)/2, (newh-h)/2);
+        graphics2D.rotate(angle, w/2, h/2);
+        graphics2D.drawImage(originalImage, 0, 0, null);
+
+        // Save destination image
+        saveImageToFile(dest, destFile);
+        return true;
+    }
+
 }

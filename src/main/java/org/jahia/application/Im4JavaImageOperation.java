@@ -39,7 +39,9 @@ public class Im4JavaImageOperation extends AbstractImageOperation {
     public ResizeType[] getSupportedResizeTypes() {
         return new ResizeType[] {
                 ResizeType.ADJUST_SIZE,
-                ResizeType.SCALE_TO_FILL
+                ResizeType.SCALE_TO_FILL,
+                ResizeType.ASPECT_FILL,
+                ResizeType.ASPECT_FIT
         };
     }
 
@@ -55,16 +57,19 @@ public class Im4JavaImageOperation extends AbstractImageOperation {
         IMOperation op = new IMOperation();
         op.addImage(originalFile);
 
-        if (false) {
-            op.resize(newWidth,newWidth,"^");
+        if (ResizeType.ADJUST_SIZE.equals(resizeType)) {
+            op.resize(newWidth,newHeight);
+        } else if (ResizeType.ASPECT_FILL.equals(resizeType)) {
+            op.resize(newWidth,newHeight,"^");
             op.gravity("center");
-            op.crop(newWidth,newWidth,0,0);
+            op.crop(newWidth,newHeight,0,0);
+        } else if (ResizeType.ASPECT_FIT.equals(resizeType)) {
+            op.resize(newWidth,newHeight);
+            op.gravity("center");
+            op.background("none");
+            op.extent(newWidth,newHeight);
         } else {
-            if (ResizeType.ADJUST_SIZE.equals(resizeType)) {
-                op.resize(newWidth,newHeight);
-            } else {
-                op.resize(newWidth,newHeight,"!");
-            }
+            op.resize(newWidth,newHeight,"!");
         }
 
         op.addImage(destFile);
@@ -85,4 +90,46 @@ public class Im4JavaImageOperation extends AbstractImageOperation {
         }
         return false;
     }
+
+    public boolean crop(String originalFile, int left, int top, int width, int height) throws IOException {
+        String destFile = getDestFileName(originalFile, "cropTo" + Integer.toString(width) + "x" + Integer.toString(height));
+        try {
+            // create command
+            ConvertCmd cmd = new ConvertCmd();
+
+            // create the operation, add images and operators/options
+            IMOperation op = new IMOperation();
+            op.addImage(originalFile);
+            op.background("none");
+            op.crop(width, height, left, top);
+            op.addImage(destFile);
+
+            cmd.run(op);
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
+
+    public boolean rotate(String originalFile, boolean clockwise) throws IOException {
+        String direction = clockwise ? "Clockwise" : "Counterclockwise";
+
+        String destFile = getDestFileName(originalFile, "rotate" + direction);
+        try {
+            // create command
+            ConvertCmd cmd = new ConvertCmd();
+
+            // create the operation, add images and operators/options
+            IMOperation op = new IMOperation();
+            op.addImage(originalFile);
+            op.rotate(clockwise ? 90. : -90.);
+            op.addImage(destFile);
+
+            cmd.run(op);
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
+
 }

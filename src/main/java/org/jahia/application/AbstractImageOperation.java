@@ -2,14 +2,12 @@ package org.jahia.application;
 
 import org.apache.commons.io.FilenameUtils;
 
+import java.io.File;
+
 /**
  * Abstract class for common image operation methods
  */
 public abstract class AbstractImageOperation implements ImageOperation {
-
-    public enum ResizeType {
-        ADJUST_SIZE, SCALE_TO_FILL, ASPECT_FILL, ASPECT_FIT;
-    }
 
     public class ResizeCoords {
         private int targetStartPosX, targetStartPosY, targetHeight, targetWidth,
@@ -102,7 +100,9 @@ public abstract class AbstractImageOperation implements ImageOperation {
 
     protected String getDestFileName(String originalFile, String operationName) {
         String originalFileBaseName = FilenameUtils.getBaseName(originalFile);
-        return originalFileBaseName + "." + getImplementationName() + "." + operationName + "." + FilenameUtils.getExtension(originalFile);
+        String newPath = FilenameUtils.getPath(originalFile) + File.separator + "generatedImages";
+        new File(newPath).mkdirs();
+        return newPath + File.separator + originalFileBaseName + "." + getImplementationName() + "." + operationName + "." + FilenameUtils.getExtension(originalFile);
     }
 
 }
