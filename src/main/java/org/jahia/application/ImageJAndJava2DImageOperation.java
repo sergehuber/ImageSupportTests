@@ -17,7 +17,7 @@ import java.io.IOException;
 public class ImageJAndJava2DImageOperation extends Java2DBicubicImageOperation {
 
     public String getImplementationName() {
-        return "ImageJAndJava2D";  //To change body of implemented methods use File | Settings | File Templates.
+        return "ImageJAndJava2D";
     }
 
     @Override
