@@ -87,7 +87,7 @@ public class ThumbnailatorHQImageOperation extends AbstractImageOperation {
             Thumbnails.of(new File(sourceFile))
                     .outputQuality(1.0f)
                     .antialiasing(Antialiasing.ON)
-                    .resizer(Resizers.BICUBIC)
+                    .resizer(Resizers.PROGRESSIVE)
                     .rotate(clockwise ? 90 : -90)
                     .scale(1.0)
                     .toFile(new File(destFile));

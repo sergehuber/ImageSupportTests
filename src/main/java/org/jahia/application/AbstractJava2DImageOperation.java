@@ -9,8 +9,10 @@ import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageOutputStream;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.awt.image.IndexColorModel;
 import java.io.File;
 import java.io.IOException;
+import java.util.Hashtable;
 import java.util.Iterator;
 
 /**
@@ -74,7 +76,7 @@ public abstract class AbstractJava2DImageOperation extends AbstractImageOperatio
         }
         String destFile = getDestFileName(originalFile, "resizeTo" + Integer.toString(newWidth) + "x" + Integer.toString(newHeight) + resizeType);
 
-        BufferedImage dest = new BufferedImage(newWidth, newHeight, originalImage.getType());
+        BufferedImage dest = getDestImage(newWidth, newHeight, originalImage);
 
         // Paint source image into the destination, scaling as needed
         Graphics2D graphics2D = getGraphics2D(dest);
@@ -93,6 +95,17 @@ public abstract class AbstractJava2DImageOperation extends AbstractImageOperatio
         return true;
     }
 
+    private BufferedImage getDestImage(int newWidth, int newHeight, BufferedImage originalImage) {
+        BufferedImage dest;
+        if (originalImage.getColorModel() instanceof IndexColorModel) {
+            // dest = new BufferedImage(newWidth, newHeight, originalImage.getType(), (IndexColorModel) originalImage.getColorModel());
+            dest = new BufferedImage(originalImage.getColorModel(), originalImage.getColorModel().createCompatibleWritableRaster(newWidth, newHeight), false, new Hashtable<Object, Object>());
+        } else {
+            dest = new BufferedImage(newWidth, newHeight, originalImage.getType());
+        }
+        return dest;
+    }
+
     public boolean crop(String originalFile, int left, int top, int width, int height) throws IOException {
 
         if (!canRead(originalFile)) {
@@ -105,7 +118,7 @@ public abstract class AbstractJava2DImageOperation extends AbstractImageOperatio
         // Read image to scale
         BufferedImage originalImage = ImageIO.read(new File(originalFile));
 
-        BufferedImage clipping = new BufferedImage(width, height, originalImage.getType());
+        BufferedImage clipping = getDestImage(width, height, originalImage);
         Graphics2D area = getGraphics2D(clipping);
         area.drawImage(originalImage, 0, 0, clipping.getWidth(), clipping.getHeight(), left, top, left + clipping.getWidth(),
             top + clipping.getHeight(), null);
@@ -129,7 +142,7 @@ public abstract class AbstractJava2DImageOperation extends AbstractImageOperatio
 
         String destFile = getDestFileName(originalFile, "rotate" + direction);
 
-        BufferedImage dest = new BufferedImage(originalImage.getHeight(), originalImage.getWidth(), originalImage.getType());
+        BufferedImage dest = getDestImage(originalImage.getHeight(), originalImage.getWidth(), originalImage);
         // Paint source image into the destination, scaling as needed
         Graphics2D graphics2D = getGraphics2D(dest);
 
@@ -139,7 +152,12 @@ public abstract class AbstractJava2DImageOperation extends AbstractImageOperatio
         int neww = (int)Math.floor(w*cos+h*sin), newh = (int)Math.floor(h*cos+w*sin);
         graphics2D.translate((neww-w)/2, (newh-h)/2);
         graphics2D.rotate(angle, w/2, h/2);
-        graphics2D.drawImage(originalImage, 0, 0, null);
+        graphics2D.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC));
+        if (originalImage.getColorModel() instanceof IndexColorModel) {
+            graphics2D.drawImage(originalImage, 0, 0, graphics2D.getBackground(), null);
+        } else {
+            graphics2D.drawImage(originalImage, 0, 0, null);
+        }
 
         // Save destination image
         saveImageToFile(dest, destFile);
