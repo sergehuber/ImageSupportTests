@@ -23,10 +23,10 @@ public class ThumnailatorImageOperation extends AbstractImageOperation {
     }
 
     public ResizeType[] getSupportedResizeTypes() {
-        return new ResizeType[] {
+        return new ResizeType[]{
                 ResizeType.ADJUST_SIZE,
                 ResizeType.SCALE_TO_FILL,
-        } ;
+        };
     }
 
     public Image getImage(File sourceFile) throws IOException {

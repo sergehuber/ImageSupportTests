@@ -15,13 +15,14 @@ import java.util.List;
 public class ImageTests {
 
     public final static ImageOperation[] imageOperationImpls = {
-        new Java2DLinearImageOperation(),
-        new Java2DBicubicImageOperation(),
-         new ImageJImageOperation(),
-        new ImageJAndJava2DImageOperation(),
-        new ThumnailatorImageOperation(),
-        new ThumbnailatorHQImageOperation(),
-        new Im4JavaImageOperation(),
+            new Java2DLinearImageOperation(),
+            new Java2DBicubicImageOperation(),
+            new Java2DProgressiveBilinearImageOperation(),
+            new ImageJImageOperation(),
+            new ImageJAndJava2DImageOperation(),
+            new ThumnailatorImageOperation(),
+            new ThumbnailatorHQImageOperation(),
+            new Im4JavaImageOperation(),
     };
 
     public static final AbstractImageOperation.ResizeType[] allResizeTypes = {
@@ -43,8 +44,8 @@ public class ImageTests {
 
     public void warmup(File originalFile, int newWidth, int newHeight, int nbWarmupLoops) throws IOException {
         // first result is discarded, as VM needs time to heat up.
-        System.out.println("Warming up Java VM with "+nbWarmupLoops+" warmup loops...");
-        for (int i=0; i < nbWarmupLoops; i++) {
+        System.out.println("Warming up Java VM with " + nbWarmupLoops + " warmup loops...");
+        for (int i = 0; i < nbWarmupLoops; i++) {
             for (ImageOperation imageOperation : availableImageOperations) {
                 File destFile = getDestFile(imageOperation.getImplementationName(), originalFile, "resizeTo" + Integer.toString(newWidth) + "x" + Integer.toString(newHeight) + ImageOperation.ResizeType.SCALE_TO_FILL);
                 Image image = imageOperation.getImage(originalFile);
@@ -57,7 +58,7 @@ public class ImageTests {
     }
 
     public void runResize(File originalFile, int imageWidth, int imageHeight, int nbLoops, AbstractImageOperation.ResizeType resizeType) throws IOException {
-        System.out.println("Testing and benchmarking image resizing for "+originalFile+" ("+nbLoops+" loops each, resizing to " + imageWidth + "x" + imageHeight + " with resize type = "+resizeType+")...");
+        System.out.println("Testing and benchmarking image resizing for " + originalFile + " (" + nbLoops + " loops each, resizing to " + imageWidth + "x" + imageHeight + " with resize type = " + resizeType + ")...");
 
         for (ImageOperation imageOperation : availableImageOperations) {
             List<AbstractImageOperation.ResizeType> supportedResizeTypes = Arrays.asList(imageOperation.getSupportedResizeTypes());
@@ -65,7 +66,7 @@ public class ImageTests {
                 continue;
             }
             long accumTime = 0;
-            for (int i=0; i < nbLoops; i++) {
+            for (int i = 0; i < nbLoops; i++) {
                 long startTime = System.currentTimeMillis();
                 Image image = imageOperation.getImage(originalFile);
                 if (image == null) {
@@ -76,17 +77,17 @@ public class ImageTests {
                 long operationTotalTime = System.currentTimeMillis() - startTime;
                 accumTime += operationTotalTime;
             }
-            double averageTime = accumTime / ((double)nbLoops);
-            System.out.println("Accumulated time for "+imageOperation.getImplementationName()+"=" + accumTime + "ms, average=" + averageTime + "ms");
+            double averageTime = accumTime / ((double) nbLoops);
+            System.out.println("Accumulated time for " + imageOperation.getImplementationName() + "=" + accumTime + "ms, average=" + averageTime + "ms");
         }
     }
 
     public void runCrop(File originalFile, int left, int top, int width, int height, int nbLoops) throws IOException {
-        System.out.println("Testing and benchmarking image cropping for "+originalFile+" ("+nbLoops+" loops each, cropping from "+left+","+top+" to size " + width + "x" + height +")...");
+        System.out.println("Testing and benchmarking image cropping for " + originalFile + " (" + nbLoops + " loops each, cropping from " + left + "," + top + " to size " + width + "x" + height + ")...");
 
         for (ImageOperation imageOperation : availableImageOperations) {
             long accumTime = 0;
-            for (int i=0; i < nbLoops; i++) {
+            for (int i = 0; i < nbLoops; i++) {
                 long startTime = System.currentTimeMillis();
                 Image image = imageOperation.getImage(originalFile);
                 if (image == null) {
@@ -97,17 +98,17 @@ public class ImageTests {
                 long operationTotalTime = System.currentTimeMillis() - startTime;
                 accumTime += operationTotalTime;
             }
-            double averageTime = accumTime / ((double)nbLoops);
-            System.out.println("Accumulated time for "+imageOperation.getImplementationName()+"=" + accumTime + "ms, average=" + averageTime + "ms");
+            double averageTime = accumTime / ((double) nbLoops);
+            System.out.println("Accumulated time for " + imageOperation.getImplementationName() + "=" + accumTime + "ms, average=" + averageTime + "ms");
         }
     }
 
     public void runRotate(File originalFile, int nbLoops) throws IOException {
-        System.out.println("Testing and benchmarking image rotating for "+originalFile+" ("+nbLoops+" loops each, rotating counter clockwise)...");
+        System.out.println("Testing and benchmarking image rotating for " + originalFile + " (" + nbLoops + " loops each, rotating counter clockwise)...");
 
         for (ImageOperation imageOperation : availableImageOperations) {
             long accumTime = 0;
-            for (int i=0; i < nbLoops; i++) {
+            for (int i = 0; i < nbLoops; i++) {
                 long startTime = System.currentTimeMillis();
                 Image image = imageOperation.getImage(originalFile);
                 if (image == null) {
@@ -120,8 +121,8 @@ public class ImageTests {
                 long operationTotalTime = System.currentTimeMillis() - startTime;
                 accumTime += operationTotalTime;
             }
-            double averageTime = accumTime / ((double)nbLoops);
-            System.out.println("Accumulated time for "+imageOperation.getImplementationName()+"=" + accumTime + "ms, average=" + averageTime + "ms");
+            double averageTime = accumTime / ((double) nbLoops);
+            System.out.println("Accumulated time for " + imageOperation.getImplementationName() + "=" + accumTime + "ms, average=" + averageTime + "ms");
         }
     }
 
@@ -187,17 +188,17 @@ public class ImageTests {
     private static void outputVMSupportedImageTypes() {
         String[] imageReaderMIMETypes = ImageIO.getReaderMIMETypes();
         StringBuilder readMimeTypes = new StringBuilder();
-        for (int i=0 ; i < imageReaderMIMETypes.length; i++) {
+        for (int i = 0; i < imageReaderMIMETypes.length; i++) {
             readMimeTypes.append(imageReaderMIMETypes[i]);
-            if (i < imageReaderMIMETypes.length-1) {
+            if (i < imageReaderMIMETypes.length - 1) {
                 readMimeTypes.append(",");
             }
         }
         String[] imageWriterMIMETypes = ImageIO.getWriterMIMETypes();
         StringBuilder writeMimeTypes = new StringBuilder();
-        for (int i=0 ; i < imageWriterMIMETypes.length; i++) {
+        for (int i = 0; i < imageWriterMIMETypes.length; i++) {
             writeMimeTypes.append(imageWriterMIMETypes[i]);
-            if (i < imageWriterMIMETypes.length-1) {
+            if (i < imageWriterMIMETypes.length - 1) {
                 writeMimeTypes.append(",");
             }
         }
@@ -209,7 +210,7 @@ public class ImageTests {
         String originalFileBaseName = FilenameUtils.getBaseName(originalFile.getPath());
         String originalFilePath = FilenameUtils.getPath(originalFile.getPath());
         String newPath = FilenameUtils.getPath(originalFile.getPath()) + "generatedImages";
-        if (originalFilePath == null || "".equals(originalFilePath) ) {
+        if (originalFilePath == null || "".equals(originalFilePath)) {
             newPath = "generatedImages";
         }
         new File(newPath).mkdirs();

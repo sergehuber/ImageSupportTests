@@ -26,12 +26,12 @@ public class ImageJImageOperation extends AbstractImageOperation {
     }
 
     public ResizeType[] getSupportedResizeTypes() {
-        return new ResizeType[] {
+        return new ResizeType[]{
                 ResizeType.ADJUST_SIZE,
                 ResizeType.SCALE_TO_FILL,
                 ResizeType.ASPECT_FILL,
                 ResizeType.ASPECT_FIT
-        } ;
+        };
     }
 
     public Image getImage(File sourceFile) throws IOException {
@@ -50,38 +50,38 @@ public class ImageJImageOperation extends AbstractImageOperation {
 
     public boolean resize(Image image, File outputFile, int newWidth, int newHeight, ResizeType resizeType) throws IOException {
 
-            ImageJImage imageJImage = (ImageJImage) image;
-            ImagePlus ip = imageJImage.getImagePlus();
+        ImageJImage imageJImage = (ImageJImage) image;
+        ImagePlus ip = imageJImage.getImagePlus();
 
-            ImageProcessor processor = ip.getProcessor();
+        ImageProcessor processor = ip.getProcessor();
 
-            int originalWidth = ip.getWidth();
-            int originalHeight = ip.getHeight();
-            ResizeCoords resizeCoords = getResizeCoords(resizeType, originalWidth, originalHeight, newWidth, newHeight);
+        int originalWidth = ip.getWidth();
+        int originalHeight = ip.getHeight();
+        ResizeCoords resizeCoords = getResizeCoords(resizeType, originalWidth, originalHeight, newWidth, newHeight);
 
-            if (ResizeType.SCALE_TO_FILL.equals(resizeType)) {
-                processor.setInterpolationMethod(ImageProcessor.BICUBIC);
-                processor = processor.resize(newWidth, newHeight, true);
-            } else if (ResizeType.ADJUST_SIZE.equals(resizeType)) {
-                newWidth = resizeCoords.getTargetWidth();
-                newHeight = resizeCoords.getTargetHeight();
-                processor.setInterpolationMethod(ImageProcessor.BICUBIC);
-                processor = processor.resize(newWidth, newHeight, true);
-            } else if (ResizeType.ASPECT_FILL.equals(resizeType)) {
-                processor.setRoi(resizeCoords.getSourceStartPosX(), resizeCoords.getSourceStartPosY(), resizeCoords.getSourceWidth(), resizeCoords.getSourceHeight());
-                processor = processor.crop();
-                processor.setInterpolationMethod(ImageProcessor.BICUBIC);
-                processor = processor.resize(resizeCoords.getTargetWidth(), resizeCoords.getTargetHeight(), true);
-            } else if (ResizeType.ASPECT_FIT.equals(resizeType)) {
-                processor.setInterpolationMethod(ImageProcessor.BICUBIC);
-                processor = processor.resize(resizeCoords.getTargetWidth(), resizeCoords.getTargetHeight(), true);
-                ImageProcessor newProcessor = processor.createProcessor(newWidth, newHeight);
-                newProcessor.copyBits(processor, resizeCoords.getTargetStartPosX(), resizeCoords.getTargetStartPosY(), Blitter.ADD);
-                processor = newProcessor;
-            }
-            ip.setProcessor(null, processor);
+        if (ResizeType.SCALE_TO_FILL.equals(resizeType)) {
+            processor.setInterpolationMethod(ImageProcessor.BICUBIC);
+            processor = processor.resize(newWidth, newHeight, true);
+        } else if (ResizeType.ADJUST_SIZE.equals(resizeType)) {
+            newWidth = resizeCoords.getTargetWidth();
+            newHeight = resizeCoords.getTargetHeight();
+            processor.setInterpolationMethod(ImageProcessor.BICUBIC);
+            processor = processor.resize(newWidth, newHeight, true);
+        } else if (ResizeType.ASPECT_FILL.equals(resizeType)) {
+            processor.setRoi(resizeCoords.getSourceStartPosX(), resizeCoords.getSourceStartPosY(), resizeCoords.getSourceWidth(), resizeCoords.getSourceHeight());
+            processor = processor.crop();
+            processor.setInterpolationMethod(ImageProcessor.BICUBIC);
+            processor = processor.resize(resizeCoords.getTargetWidth(), resizeCoords.getTargetHeight(), true);
+        } else if (ResizeType.ASPECT_FIT.equals(resizeType)) {
+            processor.setInterpolationMethod(ImageProcessor.BICUBIC);
+            processor = processor.resize(resizeCoords.getTargetWidth(), resizeCoords.getTargetHeight(), true);
+            ImageProcessor newProcessor = processor.createProcessor(newWidth, newHeight);
+            newProcessor.copyBits(processor, resizeCoords.getTargetStartPosX(), resizeCoords.getTargetStartPosY(), Blitter.ADD);
+            processor = newProcessor;
+        }
+        ip.setProcessor(null, processor);
 
-            return save(imageJImage.getImageType(), ip, outputFile);
+        return save(imageJImage.getImageType(), ip, outputFile);
     }
 
     public boolean crop(Image image, File outputFile, int left, int top, int width, int height) throws IOException {
@@ -89,13 +89,13 @@ public class ImageJImageOperation extends AbstractImageOperation {
         ImageJImage imageJImage = (ImageJImage) image;
         ImagePlus ip = imageJImage.getImagePlus();
 
-            ImageProcessor processor = ip.getProcessor();
+        ImageProcessor processor = ip.getProcessor();
 
-            processor.setRoi(left, top, width, height);
-            processor = processor.crop();
-            ip.setProcessor(null, processor);
+        processor.setRoi(left, top, width, height);
+        processor = processor.crop();
+        ip.setProcessor(null, processor);
 
-            return save(imageJImage.getImageType(), ip, outputFile);
+        return save(imageJImage.getImageType(), ip, outputFile);
 
     }
 
@@ -103,15 +103,15 @@ public class ImageJImageOperation extends AbstractImageOperation {
 
         ImageJImage imageJImage = (ImageJImage) image;
         ImagePlus ip = imageJImage.getImagePlus();
-            ImageProcessor processor = ip.getProcessor();
-            if (clockwise) {
-                processor = processor.rotateRight();
-            } else {
-                processor = processor.rotateLeft();
-            }
-            ip.setProcessor(null, processor);
+        ImageProcessor processor = ip.getProcessor();
+        if (clockwise) {
+            processor = processor.rotateRight();
+        } else {
+            processor = processor.rotateLeft();
+        }
+        ip.setProcessor(null, processor);
 
-            return save(imageJImage.getImageType(), ip, outputFile);
+        return save(imageJImage.getImageType(), ip, outputFile);
 
     }
 
@@ -134,7 +134,7 @@ public class ImageJImageOperation extends AbstractImageOperation {
             case Opener.PNG:
                 ImagePlus tempImage = WindowManager.getTempCurrentImage();
                 WindowManager.setTempCurrentImage(ip);
-                PlugIn p =null;
+                PlugIn p = null;
                 try {
                     p = (PlugIn) Class.forName("ij.plugin.PNG_Writer").newInstance();
                 } catch (Exception e) {

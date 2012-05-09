@@ -38,7 +38,7 @@ public class Im4JavaImageOperation extends AbstractImageOperation {
     }
 
     public ResizeType[] getSupportedResizeTypes() {
-        return new ResizeType[] {
+        return new ResizeType[]{
                 ResizeType.ADJUST_SIZE,
                 ResizeType.SCALE_TO_FILL,
                 ResizeType.ASPECT_FILL,
@@ -62,18 +62,19 @@ public class Im4JavaImageOperation extends AbstractImageOperation {
         op.addImage(image.getPath());
 
         if (ResizeType.ADJUST_SIZE.equals(resizeType)) {
-            op.resize(newWidth,newHeight);
+            op.resize(newWidth, newHeight);
         } else if (ResizeType.ASPECT_FILL.equals(resizeType)) {
-            op.resize(newWidth,newHeight,"^");
+            op.resize(newWidth, newHeight, "^");
             op.gravity("center");
-            op.crop(newWidth,newHeight,0,0);
+            op.crop(newWidth, newHeight, 0, 0);
+            op.p_repage();
         } else if (ResizeType.ASPECT_FIT.equals(resizeType)) {
-            op.resize(newWidth,newHeight);
+            op.resize(newWidth, newHeight);
             op.gravity("center");
             op.background("none");
-            op.extent(newWidth,newHeight);
+            op.extent(newWidth, newHeight);
         } else {
-            op.resize(newWidth,newHeight,"!");
+            op.resize(newWidth, newHeight, "!");
         }
 
         op.addImage(outputFile.getPath());
@@ -84,7 +85,7 @@ public class Im4JavaImageOperation extends AbstractImageOperation {
             return true;
         } catch (CommandException ce) {
             if (ce.getCause() instanceof FileNotFoundException) {
-                System.err.println("Seems ImageMagick is not available ("+ce.getLocalizedMessage()+").");
+                System.err.println("Seems ImageMagick is not available (" + ce.getLocalizedMessage() + ").");
             } else {
                 ce.printStackTrace();
             }
@@ -106,6 +107,7 @@ public class Im4JavaImageOperation extends AbstractImageOperation {
             op.addImage(image.getPath());
             op.background("none");
             op.crop(width, height, left, top);
+            op.p_repage();
             op.addImage(outputFile.getPath());
 
             // System.out.println("Running ImageMagic command: convert " + op);

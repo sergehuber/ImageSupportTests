@@ -58,18 +58,18 @@ public abstract class AbstractImageOperation implements ImageOperation {
         int resultTargetStartPosX = 0, resultTargetStartPosY = 0,
                 resultTargetWidth = targetWidth, resultTargetHeight = targetHeight,
                 resultSourceWidth = sourceWidth, resultSourceHeight = sourceHeight,
-            resultSourceStartPosX = 0, resultSourceStartPosY = 0;
-        double xScaleRatio = ((double)targetWidth) / ((double)sourceWidth);
-        double yScaleRatio = ((double)targetHeight) / ((double)sourceHeight);
-        double sourceAspectRadio = ((double)sourceWidth) / ((double)sourceHeight);
+                resultSourceStartPosX = 0, resultSourceStartPosY = 0;
+        double xScaleRatio = ((double) targetWidth) / ((double) sourceWidth);
+        double yScaleRatio = ((double) targetHeight) / ((double) sourceHeight);
+        double sourceAspectRadio = ((double) sourceWidth) / ((double) sourceHeight);
         if (ResizeType.SCALE_TO_FILL.equals(resizeType)) {
             // nothing to do in this case, the defaults are fine
         } else if (ResizeType.ADJUST_SIZE.equals(resizeType)) {
-             if (sourceWidth > sourceHeight) {
+            if (sourceWidth > sourceHeight) {
                 resultTargetWidth = targetWidth;
-                resultTargetHeight = sourceHeight*targetWidth/sourceWidth;
+                resultTargetHeight = sourceHeight * targetWidth / sourceWidth;
             } else {
-                resultTargetWidth = sourceWidth*targetHeight/sourceHeight;
+                resultTargetWidth = sourceWidth * targetHeight / sourceHeight;
                 resultTargetHeight = targetHeight;
             }
         } else if (ResizeType.ASPECT_FIT.equals(resizeType)) {
@@ -91,7 +91,7 @@ public abstract class AbstractImageOperation implements ImageOperation {
             resultSourceStartPosX = (sourceWidth - resultSourceWidth) / 2;
             resultSourceStartPosY = (sourceHeight - resultSourceHeight) / 2;
         }
-        return new ResizeCoords(resultTargetStartPosX,  resultTargetStartPosY, resultTargetWidth, resultTargetHeight, resultSourceStartPosX, resultSourceStartPosY, resultSourceWidth, resultSourceHeight);
+        return new ResizeCoords(resultTargetStartPosX, resultTargetStartPosY, resultTargetWidth, resultTargetHeight, resultSourceStartPosX, resultSourceStartPosY, resultSourceWidth, resultSourceHeight);
     }
 
 }

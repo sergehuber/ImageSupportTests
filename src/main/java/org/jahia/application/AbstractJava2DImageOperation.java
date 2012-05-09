@@ -51,12 +51,12 @@ public abstract class AbstractJava2DImageOperation extends AbstractImageOperatio
     }
 
     public ResizeType[] getSupportedResizeTypes() {
-        return new ResizeType[] {
+        return new ResizeType[]{
                 ResizeType.ADJUST_SIZE,
                 ResizeType.SCALE_TO_FILL,
                 ResizeType.ASPECT_FILL,
                 ResizeType.ASPECT_FIT
-        } ;
+        };
     }
 
     public Image getImage(File sourceFile) throws IOException {
@@ -72,7 +72,7 @@ public abstract class AbstractJava2DImageOperation extends AbstractImageOperatio
 
     public boolean resize(Image image, File outputFile, int newWidth, int newHeight, AbstractImageOperation.ResizeType resizeType) throws IOException {
 
-        BufferedImage originalImage = ((ImageJImage)image).getOriginalImage();
+        BufferedImage originalImage = ((ImageJImage) image).getOriginalImage();
 
         ResizeCoords resizeCoords = getResizeCoords(resizeType, originalImage.getWidth(), originalImage.getHeight(), newWidth, newHeight);
         if (ResizeType.ADJUST_SIZE.equals(resizeType)) {
@@ -99,7 +99,7 @@ public abstract class AbstractJava2DImageOperation extends AbstractImageOperatio
         return true;
     }
 
-    private BufferedImage getDestImage(int newWidth, int newHeight, BufferedImage originalImage) {
+    protected BufferedImage getDestImage(int newWidth, int newHeight, BufferedImage originalImage) {
         BufferedImage dest;
         if (originalImage.getColorModel() instanceof IndexColorModel) {
             // dest = new BufferedImage(newWidth, newHeight, originalImage.getType(), (IndexColorModel) originalImage.getColorModel());
@@ -112,12 +112,20 @@ public abstract class AbstractJava2DImageOperation extends AbstractImageOperatio
 
     public boolean crop(Image image, File outputFile, int left, int top, int width, int height) throws IOException {
 
-        BufferedImage originalImage = ((ImageJImage)image).getOriginalImage();
+        BufferedImage originalImage = ((ImageJImage) image).getOriginalImage();
 
-        BufferedImage clipping = getDestImage(width, height, originalImage);
+        int clippingWidth = width;
+        if (left + clippingWidth > originalImage.getWidth()) {
+            clippingWidth = originalImage.getWidth() - left;
+        }
+        int clippingHeight = height;
+        if (top + clippingHeight > originalImage.getHeight()) {
+            clippingHeight = originalImage.getHeight() - top;
+        }
+        BufferedImage clipping = getDestImage(clippingWidth, clippingHeight, originalImage);
         Graphics2D area = getGraphics2D(clipping);
-        area.drawImage(originalImage, 0, 0, clipping.getWidth(), clipping.getHeight(), left, top, left + clipping.getWidth(),
-            top + clipping.getHeight(), null);
+        area.drawImage(originalImage, 0, 0, clippingWidth, clippingHeight, left, top, left + clippingWidth,
+                top + clippingHeight, null);
         area.dispose();
 
         // Save destination image
@@ -128,18 +136,18 @@ public abstract class AbstractJava2DImageOperation extends AbstractImageOperatio
 
     public boolean rotate(Image image, File outputFile, boolean clockwise) throws IOException {
 
-        BufferedImage originalImage = ((ImageJImage)image).getOriginalImage();
+        BufferedImage originalImage = ((ImageJImage) image).getOriginalImage();
 
         BufferedImage dest = getDestImage(originalImage.getHeight(), originalImage.getWidth(), originalImage);
         // Paint source image into the destination, scaling as needed
         Graphics2D graphics2D = getGraphics2D(dest);
 
-        double angle = Math.toRadians(clockwise ? 90: -90);
+        double angle = Math.toRadians(clockwise ? 90 : -90);
         double sin = Math.abs(Math.sin(angle)), cos = Math.abs(Math.cos(angle));
         int w = originalImage.getWidth(), h = originalImage.getHeight();
-        int neww = (int)Math.floor(w*cos+h*sin), newh = (int)Math.floor(h*cos+w*sin);
+        int neww = (int) Math.floor(w * cos + h * sin), newh = (int) Math.floor(h * cos + w * sin);
         graphics2D.translate((neww - w) / 2, (newh - h) / 2);
-        graphics2D.rotate(angle, w/2, h/2);
+        graphics2D.rotate(angle, w / 2, h / 2);
         graphics2D.setComposite(AlphaComposite.getInstance(AlphaComposite.DST_OVER));
         if (originalImage.getColorModel() instanceof IndexColorModel) {
             graphics2D.drawImage(originalImage, 0, 0, graphics2D.getBackground(), null);
