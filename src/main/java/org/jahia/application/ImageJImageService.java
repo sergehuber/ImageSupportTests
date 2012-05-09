@@ -15,7 +15,7 @@ import java.io.IOException;
 /**
  * ImageJ image operation implementation
  */
-public class ImageJImageOperation extends AbstractImageOperation {
+public class ImageJImageService extends AbstractImageService {
 
     public String getImplementationName() {
         return "ImageJ";

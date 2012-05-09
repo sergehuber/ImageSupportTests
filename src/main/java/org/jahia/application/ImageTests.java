@@ -14,30 +14,30 @@ import java.util.List;
  */
 public class ImageTests {
 
-    public final static ImageOperation[] imageOperationImpls = {
-            new Java2DLinearImageOperation(),
-            new Java2DBicubicImageOperation(),
-            new Java2DProgressiveBilinearImageOperation(),
-            new ImageJImageOperation(),
-            new ImageJAndJava2DImageOperation(),
-            new ThumnailatorImageOperation(),
-            new ThumbnailatorHQImageOperation(),
-            new Im4JavaImageOperation(),
+    public final static ImageService[] IMAGE_SERVICE_IMPLs = {
+            new Java2DLinearImageService(),
+            new Java2DBicubicImageService(),
+            new Java2DProgressiveBilinearImageService(),
+            new ImageJImageService(),
+            new ImageJAndJava2DImageService(),
+            new ThumnailatorImageService(),
+            new ThumbnailatorHQImageService(),
+            new Im4JavaImageService(),
     };
 
-    public static final AbstractImageOperation.ResizeType[] allResizeTypes = {
-            AbstractImageOperation.ResizeType.SCALE_TO_FILL,
-            AbstractImageOperation.ResizeType.ADJUST_SIZE,
-            AbstractImageOperation.ResizeType.ASPECT_FILL,
-            AbstractImageOperation.ResizeType.ASPECT_FIT
+    public static final AbstractImageService.ResizeType[] allResizeTypes = {
+            AbstractImageService.ResizeType.SCALE_TO_FILL,
+            AbstractImageService.ResizeType.ADJUST_SIZE,
+            AbstractImageService.ResizeType.ASPECT_FILL,
+            AbstractImageService.ResizeType.ASPECT_FIT
     };
 
-    public List<ImageOperation> availableImageOperations = new ArrayList<ImageOperation>();
+    public List<ImageService> availableImageServices = new ArrayList<ImageService>();
 
     public ImageTests() {
-        for (ImageOperation imageOperation : imageOperationImpls) {
-            if (imageOperation.isAvailable()) {
-                availableImageOperations.add(imageOperation);
+        for (ImageService imageService : IMAGE_SERVICE_IMPLs) {
+            if (imageService.isAvailable()) {
+                availableImageServices.add(imageService);
             }
         }
     }
@@ -46,83 +46,83 @@ public class ImageTests {
         // first result is discarded, as VM needs time to heat up.
         System.out.println("Warming up Java VM with " + nbWarmupLoops + " warmup loops...");
         for (int i = 0; i < nbWarmupLoops; i++) {
-            for (ImageOperation imageOperation : availableImageOperations) {
-                File destFile = getDestFile(imageOperation.getImplementationName(), originalFile, "resizeTo" + Integer.toString(newWidth) + "x" + Integer.toString(newHeight) + ImageOperation.ResizeType.SCALE_TO_FILL);
-                Image image = imageOperation.getImage(originalFile);
+            for (ImageService imageService : availableImageServices) {
+                File destFile = getDestFile(imageService.getImplementationName(), originalFile, "resizeTo" + Integer.toString(newWidth) + "x" + Integer.toString(newHeight) + ImageService.ResizeType.SCALE_TO_FILL);
+                Image image = imageService.getImage(originalFile);
                 if (image == null) {
                     continue;
                 }
-                imageOperation.resize(image, destFile, newWidth, newHeight, ImageOperation.ResizeType.SCALE_TO_FILL);
+                imageService.resize(image, destFile, newWidth, newHeight, ImageService.ResizeType.SCALE_TO_FILL);
             }
         }
     }
 
-    public void runResize(File originalFile, int imageWidth, int imageHeight, int nbLoops, AbstractImageOperation.ResizeType resizeType) throws IOException {
+    public void runResize(File originalFile, int imageWidth, int imageHeight, int nbLoops, AbstractImageService.ResizeType resizeType) throws IOException {
         System.out.println("Testing and benchmarking image resizing for " + originalFile + " (" + nbLoops + " loops each, resizing to " + imageWidth + "x" + imageHeight + " with resize type = " + resizeType + ")...");
 
-        for (ImageOperation imageOperation : availableImageOperations) {
-            List<AbstractImageOperation.ResizeType> supportedResizeTypes = Arrays.asList(imageOperation.getSupportedResizeTypes());
+        for (ImageService imageService : availableImageServices) {
+            List<AbstractImageService.ResizeType> supportedResizeTypes = Arrays.asList(imageService.getSupportedResizeTypes());
             if (!supportedResizeTypes.contains(resizeType)) {
                 continue;
             }
             long accumTime = 0;
             for (int i = 0; i < nbLoops; i++) {
                 long startTime = System.currentTimeMillis();
-                Image image = imageOperation.getImage(originalFile);
+                Image image = imageService.getImage(originalFile);
                 if (image == null) {
                     continue;
                 }
-                File destFile = getDestFile(imageOperation.getImplementationName(), originalFile, "resizeTo" + Integer.toString(imageWidth) + "x" + Integer.toString(imageHeight) + resizeType);
-                imageOperation.resize(image, destFile, imageWidth, imageHeight, resizeType);
+                File destFile = getDestFile(imageService.getImplementationName(), originalFile, "resizeTo" + Integer.toString(imageWidth) + "x" + Integer.toString(imageHeight) + resizeType);
+                imageService.resize(image, destFile, imageWidth, imageHeight, resizeType);
                 long operationTotalTime = System.currentTimeMillis() - startTime;
                 accumTime += operationTotalTime;
             }
             double averageTime = accumTime / ((double) nbLoops);
-            System.out.println("Accumulated time for " + imageOperation.getImplementationName() + "=" + accumTime + "ms, average=" + averageTime + "ms");
+            System.out.println("Accumulated time for " + imageService.getImplementationName() + "=" + accumTime + "ms, average=" + averageTime + "ms");
         }
     }
 
     public void runCrop(File originalFile, int left, int top, int width, int height, int nbLoops) throws IOException {
         System.out.println("Testing and benchmarking image cropping for " + originalFile + " (" + nbLoops + " loops each, cropping from " + left + "," + top + " to size " + width + "x" + height + ")...");
 
-        for (ImageOperation imageOperation : availableImageOperations) {
+        for (ImageService imageService : availableImageServices) {
             long accumTime = 0;
             for (int i = 0; i < nbLoops; i++) {
                 long startTime = System.currentTimeMillis();
-                Image image = imageOperation.getImage(originalFile);
+                Image image = imageService.getImage(originalFile);
                 if (image == null) {
                     continue;
                 }
-                File destFile = getDestFile(imageOperation.getImplementationName(), originalFile, "cropTo" + Integer.toString(width) + "x" + Integer.toString(height));
-                imageOperation.crop(image, destFile, left, top, width, height);
+                File destFile = getDestFile(imageService.getImplementationName(), originalFile, "cropTo" + Integer.toString(width) + "x" + Integer.toString(height));
+                imageService.crop(image, destFile, left, top, width, height);
                 long operationTotalTime = System.currentTimeMillis() - startTime;
                 accumTime += operationTotalTime;
             }
             double averageTime = accumTime / ((double) nbLoops);
-            System.out.println("Accumulated time for " + imageOperation.getImplementationName() + "=" + accumTime + "ms, average=" + averageTime + "ms");
+            System.out.println("Accumulated time for " + imageService.getImplementationName() + "=" + accumTime + "ms, average=" + averageTime + "ms");
         }
     }
 
     public void runRotate(File originalFile, int nbLoops) throws IOException {
         System.out.println("Testing and benchmarking image rotating for " + originalFile + " (" + nbLoops + " loops each, rotating counter clockwise)...");
 
-        for (ImageOperation imageOperation : availableImageOperations) {
+        for (ImageService imageService : availableImageServices) {
             long accumTime = 0;
             for (int i = 0; i < nbLoops; i++) {
                 long startTime = System.currentTimeMillis();
-                Image image = imageOperation.getImage(originalFile);
+                Image image = imageService.getImage(originalFile);
                 if (image == null) {
                     continue;
                 }
-                File destFile = getDestFile(imageOperation.getImplementationName(), originalFile, "rotateCounterClockwise");
-                imageOperation.rotate(image, destFile, false);
-                destFile = getDestFile(imageOperation.getImplementationName(), originalFile, "rotateClockwise");
-                imageOperation.rotate(image, destFile, true);
+                File destFile = getDestFile(imageService.getImplementationName(), originalFile, "rotateCounterClockwise");
+                imageService.rotate(image, destFile, false);
+                destFile = getDestFile(imageService.getImplementationName(), originalFile, "rotateClockwise");
+                imageService.rotate(image, destFile, true);
                 long operationTotalTime = System.currentTimeMillis() - startTime;
                 accumTime += operationTotalTime;
             }
             double averageTime = accumTime / ((double) nbLoops);
-            System.out.println("Accumulated time for " + imageOperation.getImplementationName() + "=" + accumTime + "ms, average=" + averageTime + "ms");
+            System.out.println("Accumulated time for " + imageService.getImplementationName() + "=" + accumTime + "ms, average=" + averageTime + "ms");
         }
     }
 
@@ -159,7 +159,7 @@ public class ImageTests {
 
         if (sourceFile.isFile() && sourceFile.canRead()) {
             imageTests.warmup(sourceFile, imageWidth, imageHeight, nbWarmupLoops);
-            for (AbstractImageOperation.ResizeType resizeType : allResizeTypes) {
+            for (AbstractImageService.ResizeType resizeType : allResizeTypes) {
                 imageTests.runResize(sourceFile, imageWidth, imageHeight, nbLoops, resizeType);
             }
             imageTests.runCrop(sourceFile, 10, 10, 100, 100, nbLoops);
@@ -175,7 +175,7 @@ public class ImageTests {
                     continue;
                 }
                 if (directoryFile.isFile() && directoryFile.canRead()) {
-                    for (AbstractImageOperation.ResizeType resizeType : allResizeTypes) {
+                    for (AbstractImageService.ResizeType resizeType : allResizeTypes) {
                         imageTests.runResize(directoryFile, imageWidth, imageHeight, 1, resizeType);
                     }
                     imageTests.runCrop(directoryFile, 10, 10, 100, 100, 1);

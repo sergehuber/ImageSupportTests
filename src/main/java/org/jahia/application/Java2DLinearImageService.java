@@ -6,7 +6,7 @@ import java.awt.image.BufferedImage;
 /**
  * Java2D linear interpolation image operation implementation
  */
-public class Java2DLinearImageOperation extends AbstractJava2DImageOperation {
+public class Java2DLinearImageService extends AbstractJava2DImageService {
 
     public String getImplementationName() {
         return "Java2DLinear";

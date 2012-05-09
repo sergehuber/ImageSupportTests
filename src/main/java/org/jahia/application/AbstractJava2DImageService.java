@@ -18,7 +18,7 @@ import java.util.Iterator;
 /**
  * Abstract Java2D common image operation implementations
  */
-public abstract class AbstractJava2DImageOperation extends AbstractImageOperation {
+public abstract class AbstractJava2DImageService extends AbstractImageService {
 
     public boolean isAvailable() {
         return true;
@@ -70,7 +70,7 @@ public abstract class AbstractJava2DImageOperation extends AbstractImageOperatio
         return new ImageJImage(sourceFile.getPath(), null, 0, originalImage, null, true);
     }
 
-    public boolean resize(Image image, File outputFile, int newWidth, int newHeight, AbstractImageOperation.ResizeType resizeType) throws IOException {
+    public boolean resize(Image image, File outputFile, int newWidth, int newHeight, AbstractImageService.ResizeType resizeType) throws IOException {
 
         BufferedImage originalImage = ((ImageJImage) image).getOriginalImage();
 

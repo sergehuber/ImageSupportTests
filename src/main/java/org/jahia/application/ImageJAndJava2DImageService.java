@@ -6,9 +6,9 @@ import java.io.IOException;
 /**
  * A combination of ImageJ and Java2D implementations, to expand the supported formats of Java2D.
  */
-public class ImageJAndJava2DImageOperation extends Java2DProgressiveBilinearImageOperation {
+public class ImageJAndJava2DImageService extends Java2DProgressiveBilinearImageService {
 
-    private ImageJImageOperation imageJImageOperation = new ImageJImageOperation();
+    private ImageJImageService imageJImageOperation = new ImageJImageService();
 
     public String getImplementationName() {
         return "ImageJAndJava2D";

@@ -13,7 +13,7 @@ import java.io.IOException;
 /**
  * Im4Java image operations implementation
  */
-public class Im4JavaImageOperation extends AbstractImageOperation {
+public class Im4JavaImageService extends AbstractImageService {
 
     public String getImplementationName() {
         return "Im4Java";
@@ -50,7 +50,7 @@ public class Im4JavaImageOperation extends AbstractImageOperation {
         return new ImageMagickImage(sourceFile, sourceFile.getPath());
     }
 
-    public boolean resize(Image image, File outputFile, int newWidth, int newHeight, AbstractImageOperation.ResizeType resizeType) throws IOException {
+    public boolean resize(Image image, File outputFile, int newWidth, int newHeight, AbstractImageService.ResizeType resizeType) throws IOException {
 
         ProcessStarter.setGlobalSearchPath("/usr/bin:/usr/local/bin:/opt/local/bin");
 

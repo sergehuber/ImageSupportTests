@@ -1,6 +1,8 @@
 package org.jahia.application;
 
 import net.coobird.thumbnailator.Thumbnails;
+import net.coobird.thumbnailator.resizers.Resizers;
+import net.coobird.thumbnailator.resizers.configurations.Antialiasing;
 import org.apache.commons.io.FilenameUtils;
 
 import javax.imageio.ImageIO;
@@ -11,11 +13,12 @@ import java.io.IOException;
 import java.util.Iterator;
 
 /**
- * Thumbnailator default image operation implementation
+ * Thumbnailator high quality image operation implementation
  */
-public class ThumnailatorImageOperation extends AbstractImageOperation {
+public class ThumbnailatorHQImageService extends AbstractImageService {
+
     public String getImplementationName() {
-        return "Thumbnailator";
+        return "ThumbnailatorHQ";
     }
 
     public boolean isAvailable() {
@@ -58,13 +61,16 @@ public class ThumnailatorImageOperation extends AbstractImageOperation {
         }
     }
 
-    public boolean resize(Image image, File outputFile, int newWidth, int newHeight, AbstractImageOperation.ResizeType resizeType) throws IOException {
+    public boolean resize(Image image, File outputFile, int newWidth, int newHeight, AbstractImageService.ResizeType resizeType) throws IOException {
         ImageMagickImage imageMagickImage = (ImageMagickImage) image;
+
         boolean conserveAspectRatio = true;
         if (ResizeType.SCALE_TO_FILL.equals(resizeType)) {
             conserveAspectRatio = false;
         }
         Thumbnails.of(imageMagickImage.getFile())
+                .outputQuality(1.0f)
+                .resizer(Resizers.BICUBIC)
                 .size(newWidth, newHeight)
                 .keepAspectRatio(conserveAspectRatio)
                 .toFile(outputFile);
@@ -76,6 +82,8 @@ public class ThumnailatorImageOperation extends AbstractImageOperation {
 
         Thumbnails.of(imageMagickImage.getFile())
                 .outputQuality(1.0f)
+                .antialiasing(Antialiasing.ON)
+                .resizer(Resizers.BICUBIC)
                 .sourceRegion(left, top, width, height)
                 .scale(1.0)
                 .toFile(outputFile);
@@ -84,10 +92,11 @@ public class ThumnailatorImageOperation extends AbstractImageOperation {
 
     public boolean rotate(Image image, File outputFile, boolean clockwise) throws IOException {
         ImageMagickImage imageMagickImage = (ImageMagickImage) image;
-
         try {
             Thumbnails.of(imageMagickImage.getFile())
                     .outputQuality(1.0f)
+                    .antialiasing(Antialiasing.ON)
+                    .resizer(Resizers.PROGRESSIVE)
                     .rotate(clockwise ? 90 : -90)
                     .scale(1.0)
                     .toFile(outputFile);
@@ -97,5 +106,4 @@ public class ThumnailatorImageOperation extends AbstractImageOperation {
         }
         return true;
     }
-
 }

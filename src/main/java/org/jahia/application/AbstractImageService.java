@@ -3,7 +3,7 @@ package org.jahia.application;
 /**
  * Abstract class for common image operation methods
  */
-public abstract class AbstractImageOperation implements ImageOperation {
+public abstract class AbstractImageService implements ImageService {
 
     public class ResizeCoords {
         private int targetStartPosX, targetStartPosY, targetHeight, targetWidth,

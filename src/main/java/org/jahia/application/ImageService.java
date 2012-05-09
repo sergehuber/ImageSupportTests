@@ -6,7 +6,7 @@ import java.io.IOException;
 /**
  * Common interface for all image operation implementations
  */
-public interface ImageOperation {
+public interface ImageService {
 
     public enum ResizeType {
         ADJUST_SIZE, SCALE_TO_FILL, ASPECT_FILL, ASPECT_FIT;
@@ -16,7 +16,7 @@ public interface ImageOperation {
 
     public boolean isAvailable();
 
-    public AbstractImageOperation.ResizeType[] getSupportedResizeTypes();
+    public AbstractImageService.ResizeType[] getSupportedResizeTypes();
 
     public Image getImage(File sourceFile) throws IOException;
 

@@ -7,7 +7,7 @@ import java.awt.image.IndexColorModel;
 /**
  * Java2D bicubic interpolation image operations implementation
  */
-public class Java2DBicubicImageOperation extends AbstractJava2DImageOperation {
+public class Java2DBicubicImageService extends AbstractJava2DImageService {
 
     public String getImplementationName() {
         return "Java2DBicubic";

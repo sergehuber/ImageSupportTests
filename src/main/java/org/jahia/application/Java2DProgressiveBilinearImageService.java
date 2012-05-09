@@ -14,7 +14,7 @@ import java.io.IOException;
  * <a href="http://filthyrichclients.org">Filthy Rich Clients</a>
  * by Chet Haase and Romain Guy.
  */
-public class Java2DProgressiveBilinearImageOperation extends Java2DBicubicImageOperation {
+public class Java2DProgressiveBilinearImageService extends Java2DBicubicImageService {
     @Override
     public String getImplementationName() {
         return "Java2DProgressiveBilinear";    //To change body of overridden methods use File | Settings | File Templates.
