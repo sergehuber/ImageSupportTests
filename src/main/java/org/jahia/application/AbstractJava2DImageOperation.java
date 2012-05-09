@@ -26,8 +26,8 @@ public abstract class AbstractJava2DImageOperation extends AbstractImageOperatio
 
     protected abstract Graphics2D getGraphics2D(BufferedImage bufferedImage);
 
-    protected boolean canRead(String sourceFile) {
-        String sourceFileExtension = FilenameUtils.getExtension(sourceFile);
+    protected boolean canRead(File sourceFile) {
+        String sourceFileExtension = FilenameUtils.getExtension(sourceFile.getPath());
         Iterator<ImageReader> imageReaderIterator = ImageIO.getImageReadersBySuffix(sourceFileExtension.toLowerCase());
         if (imageReaderIterator.hasNext()) {
             return true;
@@ -36,12 +36,12 @@ public abstract class AbstractJava2DImageOperation extends AbstractImageOperatio
         }
     }
 
-    protected void saveImageToFile(BufferedImage dest, String destFile) throws IOException {
-        String fileExtension = FilenameUtils.getExtension(destFile).toLowerCase();
+    protected void saveImageToFile(BufferedImage dest, File destFile) throws IOException {
+        String fileExtension = FilenameUtils.getExtension(destFile.getPath()).toLowerCase();
         Iterator<ImageWriter> suffixWriters = ImageIO.getImageWritersBySuffix(fileExtension);
         if (suffixWriters.hasNext()) {
             ImageWriter imageWriter = suffixWriters.next();
-            ImageOutputStream imageOutputStream = new FileImageOutputStream(new File(destFile));
+            ImageOutputStream imageOutputStream = new FileImageOutputStream(destFile);
             imageWriter.setOutput(imageOutputStream);
             imageWriter.write(dest);
             imageOutputStream.close();
@@ -59,22 +59,26 @@ public abstract class AbstractJava2DImageOperation extends AbstractImageOperatio
         } ;
     }
 
-    public boolean resize(String originalFile, int newWidth, int newHeight, AbstractImageOperation.ResizeType resizeType) throws IOException {
-
-        if (!canRead(originalFile)) {
-            System.err.println("Image format for file " + originalFile + " is not supported by this implementation (" + this.getClass().getName() + ")");
-            return false;
+    public Image getImage(File sourceFile) throws IOException {
+        if (!canRead(sourceFile)) {
+            System.err.println("Image reading for file " + sourceFile + " is not supported by this implementation (" + this.getClass().getName() + ")");
+            return null;
         }
-
         // Read image to scale
-        BufferedImage originalImage = ImageIO.read(new File(originalFile));
+        BufferedImage originalImage = ImageIO.read(sourceFile);
+
+        return new ImageJImage(sourceFile.getPath(), null, 0, originalImage, null, true);
+    }
+
+    public boolean resize(Image image, File outputFile, int newWidth, int newHeight, AbstractImageOperation.ResizeType resizeType) throws IOException {
+
+        BufferedImage originalImage = ((ImageJImage)image).getOriginalImage();
 
         ResizeCoords resizeCoords = getResizeCoords(resizeType, originalImage.getWidth(), originalImage.getHeight(), newWidth, newHeight);
         if (ResizeType.ADJUST_SIZE.equals(resizeType)) {
             newWidth = resizeCoords.getTargetWidth();
             newHeight = resizeCoords.getTargetHeight();
         }
-        String destFile = getDestFileName(originalFile, "resizeTo" + Integer.toString(newWidth) + "x" + Integer.toString(newHeight) + resizeType);
 
         BufferedImage dest = getDestImage(newWidth, newHeight, originalImage);
 
@@ -90,7 +94,7 @@ public abstract class AbstractJava2DImageOperation extends AbstractImageOperatio
         graphics2D.dispose();
 
         // Save destination image
-        saveImageToFile(dest, destFile);
+        saveImageToFile(dest, outputFile);
 
         return true;
     }
@@ -106,17 +110,9 @@ public abstract class AbstractJava2DImageOperation extends AbstractImageOperatio
         return dest;
     }
 
-    public boolean crop(String originalFile, int left, int top, int width, int height) throws IOException {
+    public boolean crop(Image image, File outputFile, int left, int top, int width, int height) throws IOException {
 
-        if (!canRead(originalFile)) {
-            System.err.println("Image format for file " + originalFile + " is not supported by this implementation (" + this.getClass().getName() + ")");
-            return false;
-        }
-
-        String destFile = getDestFileName(originalFile, "cropTo" + Integer.toString(width) + "x" + Integer.toString(height));
-
-        // Read image to scale
-        BufferedImage originalImage = ImageIO.read(new File(originalFile));
+        BufferedImage originalImage = ((ImageJImage)image).getOriginalImage();
 
         BufferedImage clipping = getDestImage(width, height, originalImage);
         Graphics2D area = getGraphics2D(clipping);
@@ -125,22 +121,14 @@ public abstract class AbstractJava2DImageOperation extends AbstractImageOperatio
         area.dispose();
 
         // Save destination image
-        saveImageToFile(clipping, destFile);
+        saveImageToFile(clipping, outputFile);
 
         return true;
     }
 
-    public boolean rotate(String originalFile, boolean clockwise) throws IOException {
+    public boolean rotate(Image image, File outputFile, boolean clockwise) throws IOException {
 
-        if (!canRead(originalFile)) {
-            System.err.println("Image format for file " + originalFile + " is not supported by this implementation (" + this.getClass().getName() + ")");
-            return false;
-        }
-
-        BufferedImage originalImage = ImageIO.read(new File(originalFile));
-        String direction = clockwise ? "Clockwise" : "Counterclockwise";
-
-        String destFile = getDestFileName(originalFile, "rotate" + direction);
+        BufferedImage originalImage = ((ImageJImage)image).getOriginalImage();
 
         BufferedImage dest = getDestImage(originalImage.getHeight(), originalImage.getWidth(), originalImage);
         // Paint source image into the destination, scaling as needed
@@ -150,9 +138,9 @@ public abstract class AbstractJava2DImageOperation extends AbstractImageOperatio
         double sin = Math.abs(Math.sin(angle)), cos = Math.abs(Math.cos(angle));
         int w = originalImage.getWidth(), h = originalImage.getHeight();
         int neww = (int)Math.floor(w*cos+h*sin), newh = (int)Math.floor(h*cos+w*sin);
-        graphics2D.translate((neww-w)/2, (newh-h)/2);
+        graphics2D.translate((neww - w) / 2, (newh - h) / 2);
         graphics2D.rotate(angle, w/2, h/2);
-        graphics2D.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC));
+        graphics2D.setComposite(AlphaComposite.getInstance(AlphaComposite.DST_OVER));
         if (originalImage.getColorModel() instanceof IndexColorModel) {
             graphics2D.drawImage(originalImage, 0, 0, graphics2D.getBackground(), null);
         } else {
@@ -160,7 +148,7 @@ public abstract class AbstractJava2DImageOperation extends AbstractImageOperatio
         }
 
         // Save destination image
-        saveImageToFile(dest, destFile);
+        saveImageToFile(dest, outputFile);
         return true;
     }
 

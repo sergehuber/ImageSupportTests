@@ -1,9 +1,5 @@
 package org.jahia.application;
 
-import org.apache.commons.io.FilenameUtils;
-
-import java.io.File;
-
 /**
  * Abstract class for common image operation methods
  */
@@ -96,17 +92,6 @@ public abstract class AbstractImageOperation implements ImageOperation {
             resultSourceStartPosY = (sourceHeight - resultSourceHeight) / 2;
         }
         return new ResizeCoords(resultTargetStartPosX,  resultTargetStartPosY, resultTargetWidth, resultTargetHeight, resultSourceStartPosX, resultSourceStartPosY, resultSourceWidth, resultSourceHeight);
-    }
-
-    protected String getDestFileName(String originalFile, String operationName) {
-        String originalFileBaseName = FilenameUtils.getBaseName(originalFile);
-        String originalFilePath = FilenameUtils.getPath(originalFile);
-        String newPath = FilenameUtils.getPath(originalFile) + File.separator + "generatedImages";
-        if (originalFilePath == null || "".equals(originalFilePath) ) {
-            newPath = "generatedImages";
-        }
-        new File(newPath).mkdirs();
-        return newPath + File.separator + originalFileBaseName + "." + getImplementationName() + "." + operationName + "." + FilenameUtils.getExtension(originalFile);
     }
 
 }

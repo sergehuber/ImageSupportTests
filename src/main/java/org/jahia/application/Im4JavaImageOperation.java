@@ -6,6 +6,7 @@ import org.im4java.core.IM4JavaException;
 import org.im4java.core.IMOperation;
 import org.im4java.process.ProcessStarter;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
@@ -45,8 +46,11 @@ public class Im4JavaImageOperation extends AbstractImageOperation {
         };
     }
 
-    public boolean resize(String originalFile, int newWidth, int newHeight, AbstractImageOperation.ResizeType resizeType) throws IOException {
-        String destFile = getDestFileName(originalFile, "resizeTo" + Integer.toString(newWidth) + "x" + Integer.toString(newHeight) + resizeType);
+    public Image getImage(File sourceFile) {
+        return new ImageMagickImage(sourceFile, sourceFile.getPath());
+    }
+
+    public boolean resize(Image image, File outputFile, int newWidth, int newHeight, AbstractImageOperation.ResizeType resizeType) throws IOException {
 
         ProcessStarter.setGlobalSearchPath("/usr/bin:/usr/local/bin:/opt/local/bin");
 
@@ -55,7 +59,7 @@ public class Im4JavaImageOperation extends AbstractImageOperation {
 
         // create the operation, add images and operators/options
         IMOperation op = new IMOperation();
-        op.addImage(originalFile);
+        op.addImage(image.getPath());
 
         if (ResizeType.ADJUST_SIZE.equals(resizeType)) {
             op.resize(newWidth,newHeight);
@@ -72,9 +76,10 @@ public class Im4JavaImageOperation extends AbstractImageOperation {
             op.resize(newWidth,newHeight,"!");
         }
 
-        op.addImage(destFile);
+        op.addImage(outputFile.getPath());
 
         try {
+            // System.out.println("Running ImageMagic command: convert " + op);
             cmd.run(op);
             return true;
         } catch (CommandException ce) {
@@ -91,19 +96,19 @@ public class Im4JavaImageOperation extends AbstractImageOperation {
         return false;
     }
 
-    public boolean crop(String originalFile, int left, int top, int width, int height) throws IOException {
-        String destFile = getDestFileName(originalFile, "cropTo" + Integer.toString(width) + "x" + Integer.toString(height));
+    public boolean crop(Image image, File outputFile, int left, int top, int width, int height) throws IOException {
         try {
             // create command
             ConvertCmd cmd = new ConvertCmd();
 
             // create the operation, add images and operators/options
             IMOperation op = new IMOperation();
-            op.addImage(originalFile);
+            op.addImage(image.getPath());
             op.background("none");
             op.crop(width, height, left, top);
-            op.addImage(destFile);
+            op.addImage(outputFile.getPath());
 
+            // System.out.println("Running ImageMagic command: convert " + op);
             cmd.run(op);
         } catch (Exception e) {
             return false;
@@ -111,20 +116,18 @@ public class Im4JavaImageOperation extends AbstractImageOperation {
         return true;
     }
 
-    public boolean rotate(String originalFile, boolean clockwise) throws IOException {
-        String direction = clockwise ? "Clockwise" : "Counterclockwise";
-
-        String destFile = getDestFileName(originalFile, "rotate" + direction);
+    public boolean rotate(Image image, File outputFile, boolean clockwise) throws IOException {
         try {
             // create command
             ConvertCmd cmd = new ConvertCmd();
 
             // create the operation, add images and operators/options
             IMOperation op = new IMOperation();
-            op.addImage(originalFile);
+            op.addImage(image.getPath());
             op.rotate(clockwise ? 90. : -90.);
-            op.addImage(destFile);
+            op.addImage(outputFile.getPath());
 
+            // System.out.println("Running ImageMagic command: convert " + op);
             cmd.run(op);
         } catch (Exception e) {
             return false;

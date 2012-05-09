@@ -1,5 +1,7 @@
 package org.jahia.application;
 
+import org.apache.commons.io.FilenameUtils;
+
 import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
@@ -15,10 +17,11 @@ public class ImageTests {
     public final static ImageOperation[] imageOperationImpls = {
         new Java2DLinearImageOperation(),
         new Java2DBicubicImageOperation(),
+         new ImageJImageOperation(),
+        new ImageJAndJava2DImageOperation(),
         new ThumnailatorImageOperation(),
         new ThumbnailatorHQImageOperation(),
         new Im4JavaImageOperation(),
-        new ImageJAndJava2DImageOperation()
     };
 
     public static final AbstractImageOperation.ResizeType[] allResizeTypes = {
@@ -38,17 +41,22 @@ public class ImageTests {
         }
     }
 
-    public void warmup(String originalFile, int newWidth, int newHeight, int nbWarmupLoops) throws IOException {
+    public void warmup(File originalFile, int newWidth, int newHeight, int nbWarmupLoops) throws IOException {
         // first result is discarded, as VM needs time to heat up.
         System.out.println("Warming up Java VM with "+nbWarmupLoops+" warmup loops...");
         for (int i=0; i < nbWarmupLoops; i++) {
             for (ImageOperation imageOperation : availableImageOperations) {
-                imageOperation.resize(originalFile, newWidth, newHeight, AbstractImageOperation.ResizeType.SCALE_TO_FILL);
+                File destFile = getDestFile(imageOperation.getImplementationName(), originalFile, "resizeTo" + Integer.toString(newWidth) + "x" + Integer.toString(newHeight) + ImageOperation.ResizeType.SCALE_TO_FILL);
+                Image image = imageOperation.getImage(originalFile);
+                if (image == null) {
+                    continue;
+                }
+                imageOperation.resize(image, destFile, newWidth, newHeight, ImageOperation.ResizeType.SCALE_TO_FILL);
             }
         }
     }
 
-    public void runResize(String originalFile, int imageWidth, int imageHeight, int nbLoops, AbstractImageOperation.ResizeType resizeType) throws IOException {
+    public void runResize(File originalFile, int imageWidth, int imageHeight, int nbLoops, AbstractImageOperation.ResizeType resizeType) throws IOException {
         System.out.println("Testing and benchmarking image resizing for "+originalFile+" ("+nbLoops+" loops each, resizing to " + imageWidth + "x" + imageHeight + " with resize type = "+resizeType+")...");
 
         for (ImageOperation imageOperation : availableImageOperations) {
@@ -59,7 +67,12 @@ public class ImageTests {
             long accumTime = 0;
             for (int i=0; i < nbLoops; i++) {
                 long startTime = System.currentTimeMillis();
-                imageOperation.resize(originalFile, imageWidth, imageHeight, resizeType);
+                Image image = imageOperation.getImage(originalFile);
+                if (image == null) {
+                    continue;
+                }
+                File destFile = getDestFile(imageOperation.getImplementationName(), originalFile, "resizeTo" + Integer.toString(imageWidth) + "x" + Integer.toString(imageHeight) + resizeType);
+                imageOperation.resize(image, destFile, imageWidth, imageHeight, resizeType);
                 long operationTotalTime = System.currentTimeMillis() - startTime;
                 accumTime += operationTotalTime;
             }
@@ -68,14 +81,19 @@ public class ImageTests {
         }
     }
 
-    public void runCrop(String originalFile, int left, int top, int width, int height, int nbLoops) throws IOException {
+    public void runCrop(File originalFile, int left, int top, int width, int height, int nbLoops) throws IOException {
         System.out.println("Testing and benchmarking image cropping for "+originalFile+" ("+nbLoops+" loops each, cropping from "+left+","+top+" to size " + width + "x" + height +")...");
 
         for (ImageOperation imageOperation : availableImageOperations) {
             long accumTime = 0;
             for (int i=0; i < nbLoops; i++) {
                 long startTime = System.currentTimeMillis();
-                imageOperation.crop(originalFile, left, top, width, height);
+                Image image = imageOperation.getImage(originalFile);
+                if (image == null) {
+                    continue;
+                }
+                File destFile = getDestFile(imageOperation.getImplementationName(), originalFile, "cropTo" + Integer.toString(width) + "x" + Integer.toString(height));
+                imageOperation.crop(image, destFile, left, top, width, height);
                 long operationTotalTime = System.currentTimeMillis() - startTime;
                 accumTime += operationTotalTime;
             }
@@ -84,15 +102,21 @@ public class ImageTests {
         }
     }
 
-    public void runRotate(String originalFile, int nbLoops) throws IOException {
+    public void runRotate(File originalFile, int nbLoops) throws IOException {
         System.out.println("Testing and benchmarking image rotating for "+originalFile+" ("+nbLoops+" loops each, rotating counter clockwise)...");
 
         for (ImageOperation imageOperation : availableImageOperations) {
             long accumTime = 0;
             for (int i=0; i < nbLoops; i++) {
                 long startTime = System.currentTimeMillis();
-                imageOperation.rotate(originalFile, false);
-                imageOperation.rotate(originalFile, true);
+                Image image = imageOperation.getImage(originalFile);
+                if (image == null) {
+                    continue;
+                }
+                File destFile = getDestFile(imageOperation.getImplementationName(), originalFile, "rotateCounterClockwise");
+                imageOperation.rotate(image, destFile, false);
+                destFile = getDestFile(imageOperation.getImplementationName(), originalFile, "rotateClockwise");
+                imageOperation.rotate(image, destFile, true);
                 long operationTotalTime = System.currentTimeMillis() - startTime;
                 accumTime += operationTotalTime;
             }
@@ -127,6 +151,40 @@ public class ImageTests {
             imageHeight = Integer.parseInt(args[4]);
         }
 
+        outputVMSupportedImageTypes();
+
+        ImageTests imageTests = new ImageTests();
+        File sourceFile = new File(args[0]);
+
+        if (sourceFile.isFile() && sourceFile.canRead()) {
+            imageTests.warmup(sourceFile, imageWidth, imageHeight, nbWarmupLoops);
+            for (AbstractImageOperation.ResizeType resizeType : allResizeTypes) {
+                imageTests.runResize(sourceFile, imageWidth, imageHeight, nbLoops, resizeType);
+            }
+            imageTests.runCrop(sourceFile, 10, 10, 100, 100, nbLoops);
+            imageTests.runRotate(sourceFile, nbLoops);
+        } else {
+            if (!sourceFile.isDirectory()) {
+                System.err.println("Expected directory but found invalid file instead " + sourceFile);
+                return;
+            }
+            File[] directoryFiles = sourceFile.listFiles();
+            for (File directoryFile : directoryFiles) {
+                if (directoryFile.getName().startsWith(".") || directoryFile.isDirectory()) {
+                    continue;
+                }
+                if (directoryFile.isFile() && directoryFile.canRead()) {
+                    for (AbstractImageOperation.ResizeType resizeType : allResizeTypes) {
+                        imageTests.runResize(directoryFile, imageWidth, imageHeight, 1, resizeType);
+                    }
+                    imageTests.runCrop(directoryFile, 10, 10, 100, 100, 1);
+                    imageTests.runRotate(directoryFile, 1);
+                }
+            }
+        }
+    }
+
+    private static void outputVMSupportedImageTypes() {
         String[] imageReaderMIMETypes = ImageIO.getReaderMIMETypes();
         StringBuilder readMimeTypes = new StringBuilder();
         for (int i=0 ; i < imageReaderMIMETypes.length; i++) {
@@ -145,30 +203,20 @@ public class ImageTests {
         }
         System.out.println("VM supported read image types = " + readMimeTypes);
         System.out.println("VM supported write image types = " + writeMimeTypes);
-
-        ImageTests imageTests = new ImageTests();
-        File sourceFile = new File(args[0]);
-
-        if (sourceFile.isFile()) {
-            imageTests.warmup(args[0], imageWidth, imageHeight, nbWarmupLoops);
-            for (AbstractImageOperation.ResizeType resizeType : allResizeTypes) {
-                imageTests.runResize(args[0], imageWidth, imageHeight, nbLoops, resizeType);
-            }
-            imageTests.runCrop(args[0], 10, 10, 100, 100, nbLoops);
-            imageTests.runRotate(args[0], nbLoops);
-        } else {
-            File[] directoryFiles = sourceFile.listFiles();
-            for (File directoryFile : directoryFiles) {
-                if (directoryFile.getName().startsWith(".") || directoryFile.isDirectory()) {
-                    continue;
-                }
-                for (AbstractImageOperation.ResizeType resizeType : allResizeTypes) {
-                    imageTests.runResize(directoryFile.getPath(), imageWidth, imageHeight, 1, resizeType);
-                }
-                imageTests.runCrop(directoryFile.getPath(), 10, 10, 100, 100, 1);
-                imageTests.runRotate(directoryFile.getPath(), 1);
-            }
-        }
     }
+
+    private File getDestFile(String implementationName, File originalFile, String operationName) {
+        String originalFileBaseName = FilenameUtils.getBaseName(originalFile.getPath());
+        String originalFilePath = FilenameUtils.getPath(originalFile.getPath());
+        String newPath = FilenameUtils.getPath(originalFile.getPath()) + "generatedImages";
+        if (originalFilePath == null || "".equals(originalFilePath) ) {
+            newPath = "generatedImages";
+        }
+        new File(newPath).mkdirs();
+        File destFile = new File(newPath + File.separator + originalFileBaseName + "." + implementationName + "." + operationName + "." + FilenameUtils.getExtension(originalFile.getPath()));
+        // System.out.println("Using destFile=" + destFile);
+        return destFile;
+    }
+
 
 }

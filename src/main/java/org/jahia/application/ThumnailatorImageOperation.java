@@ -5,6 +5,7 @@ import org.apache.commons.io.FilenameUtils;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
+import javax.imageio.ImageWriter;
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
@@ -28,62 +29,70 @@ public class ThumnailatorImageOperation extends AbstractImageOperation {
         } ;
     }
 
-    protected boolean canRead(String sourceFile) {
-        String sourceFileExtension = FilenameUtils.getExtension(sourceFile);
+    public Image getImage(File sourceFile) throws IOException {
+        if (!canRead(sourceFile) || !canWrite(sourceFile)) {
+            return null;
+        }
+        return new ImageMagickImage(sourceFile, sourceFile.getPath());
+    }
+
+    protected boolean canRead(File sourceFile) {
+        String sourceFileExtension = FilenameUtils.getExtension(sourceFile.getPath());
         Iterator<ImageReader> imageReaderIterator = ImageIO.getImageReadersBySuffix(sourceFileExtension.toLowerCase());
         if (imageReaderIterator.hasNext()) {
             return true;
         } else {
-            System.err.println("Image format for file " + sourceFile + " is not supported by this implementation (" + this.getClass().getName() + ")");
+            System.err.println("Image reading for file " + sourceFile + " is not supported by this implementation (" + this.getClass().getName() + ")");
             return false;
         }
     }
 
-    public boolean resize(String originalFile, int newWidth, int newHeight, AbstractImageOperation.ResizeType resizeType) throws IOException {
-        if (!canRead(originalFile)) {
+    protected boolean canWrite(File sourceFile) {
+        String sourceFileExtension = FilenameUtils.getExtension(sourceFile.getPath());
+        Iterator<ImageWriter> imageWriterIterator = ImageIO.getImageWritersBySuffix(sourceFileExtension.toLowerCase());
+        if (imageWriterIterator.hasNext()) {
+            return true;
+        } else {
+            System.err.println("Image writing for file " + sourceFile + " is not supported by this implementation (" + this.getClass().getName() + ")");
             return false;
         }
-        String destFile = getDestFileName(originalFile, "resizeTo" + Integer.toString(newWidth) + "x" + Integer.toString(newHeight) + resizeType);
+    }
+
+    public boolean resize(Image image, File outputFile, int newWidth, int newHeight, AbstractImageOperation.ResizeType resizeType) throws IOException {
+        ImageMagickImage imageMagickImage = (ImageMagickImage) image;
         boolean conserveAspectRatio = true;
         if (ResizeType.SCALE_TO_FILL.equals(resizeType)) {
             conserveAspectRatio = false;
         }
-        Thumbnails.of(new File(originalFile))
+        Thumbnails.of(imageMagickImage.getFile())
                 .size(newWidth, newHeight)
                 .keepAspectRatio(conserveAspectRatio)
-                .toFile(new File(destFile));
+                .toFile(outputFile);
         return true;
     }
 
-    public boolean crop(String sourceFile, int left, int top, int width, int height) throws IOException {
-        if (!canRead(sourceFile)) {
-            return false;
-        }
-        String destFile = getDestFileName(sourceFile, "cropTo" + Integer.toString(width) + "x" + Integer.toString(height));
+    public boolean crop(Image image, File outputFile, int left, int top, int width, int height) throws IOException {
+        ImageMagickImage imageMagickImage = (ImageMagickImage) image;
 
-        Thumbnails.of(new File(sourceFile))
+        Thumbnails.of(imageMagickImage.getFile())
                 .outputQuality(1.0f)
                 .sourceRegion(left, top, width, height)
                 .scale(1.0)
-                .toFile(new File(destFile));
+                .toFile(outputFile);
         return true;
     }
 
-    public boolean rotate(String sourceFile, boolean clockwise) throws IOException {
-        if (!canRead(sourceFile)) {
-            return false;
-        }
-        String direction = clockwise ? "Clockwise" : "Counterclockwise";
-        String destFile = getDestFileName(sourceFile, "rotate" + direction);
+    public boolean rotate(Image image, File outputFile, boolean clockwise) throws IOException {
+        ImageMagickImage imageMagickImage = (ImageMagickImage) image;
 
         try {
-            Thumbnails.of(new File(sourceFile))
+            Thumbnails.of(imageMagickImage.getFile())
                     .outputQuality(1.0f)
                     .rotate(clockwise ? 90 : -90)
                     .scale(1.0)
-                    .toFile(new File(destFile));
+                    .toFile(outputFile);
         } catch (Exception e) {
-            System.err.println("Error while generating image for " + sourceFile + ": " + e.getLocalizedMessage() + "(" + this.getClass().getName() + ")");
+            System.err.println("Error while generating image for " + imageMagickImage.getFile() + ": " + e.getLocalizedMessage() + "(" + this.getClass().getName() + ")");
             return false;
         }
         return true;

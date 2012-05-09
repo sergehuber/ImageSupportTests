@@ -1,5 +1,6 @@
 package org.jahia.application;
 
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -17,10 +18,12 @@ public interface ImageOperation {
 
     public AbstractImageOperation.ResizeType[] getSupportedResizeTypes();
 
-    public boolean resize(String sourceFile, int width, int height, ResizeType resizeType) throws IOException;
+    public Image getImage(File sourceFile) throws IOException;
 
-    public boolean crop(String sourceFile, int left, int top, int width, int height) throws IOException;
+    public boolean resize(Image image, File outputFile, int width, int height, ResizeType resizeType) throws IOException;
 
-    public boolean rotate(String sourceFile, boolean clockwise) throws IOException;
+    public boolean crop(Image image, File outputFile, int left, int top, int width, int height) throws IOException;
+
+    public boolean rotate(Image image, File outputFile, boolean clockwise) throws IOException;
 
 }
