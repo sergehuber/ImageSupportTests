@@ -1,5 +1,7 @@
 package org.jahia.application;
 
+import net.coobird.thumbnailator.resizers.Resizers;
+
 import org.apache.commons.io.FilenameUtils;
 
 import javax.imageio.ImageIO;
@@ -20,9 +22,10 @@ public class ImageTests {
             new Java2DProgressiveBilinearImageService(),
             new ImageJImageService(),
             new ImageJAndJava2DImageService(),
-            new ThumnailatorImageService(),
-            new ThumbnailatorHQImageService(),
-            new Im4JavaImageService(),
+            new ThumbnailatorImageService(),
+            new ThumbnailatorImageService("ThumbnailatorHQ", 1.0f, null),
+            new ThumbnailatorImageService("ThumbnailatorProgressiveBilinear", null, Resizers.PROGRESSIVE),
+            new Im4JavaImageService()
     };
 
     public static final AbstractImageService.ResizeType[] allResizeTypes = {
@@ -147,7 +150,7 @@ public class ImageTests {
             nbWarmupLoops = Integer.parseInt(args[2]);
         }
 
-        if (args.length == 4) {
+        if (args.length == 5) {
             imageWidth = Integer.parseInt(args[3]);
             imageHeight = Integer.parseInt(args[4]);
         }

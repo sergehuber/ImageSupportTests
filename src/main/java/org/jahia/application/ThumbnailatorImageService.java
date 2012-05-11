@@ -1,21 +1,43 @@
 package org.jahia.application;
 
-import net.coobird.thumbnailator.Thumbnails;
-import org.apache.commons.io.FilenameUtils;
-
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.ImageWriter;
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.ImageWriter;
+
+import net.coobird.thumbnailator.Thumbnails;
+import net.coobird.thumbnailator.Thumbnails.Builder;
+import net.coobird.thumbnailator.resizers.Resizers;
+
+import org.apache.commons.io.FilenameUtils;
+
 /**
  * Thumbnailator default image operation implementation
  */
-public class ThumnailatorImageService extends AbstractImageService {
+public class ThumbnailatorImageService extends AbstractImageService {
+    
+    private String name = "Thumbnailator";
+    
+    private Float outputQuality;
+    
+    private Resizers resizer;
+    
+    public ThumbnailatorImageService() {
+        super();
+    }
+
+    public ThumbnailatorImageService(String name, Float outputQuality, Resizers resizer) {
+        this();
+        this.name = name;
+        this.outputQuality = outputQuality;
+        this.resizer = resizer;
+    }
+
     public String getImplementationName() {
-        return "Thumbnailator";
+        return name;
     }
 
     public boolean isAvailable() {
@@ -64,7 +86,15 @@ public class ThumnailatorImageService extends AbstractImageService {
         if (ResizeType.SCALE_TO_FILL.equals(resizeType)) {
             conserveAspectRatio = false;
         }
-        Thumbnails.of(imageMagickImage.getFile())
+        Builder<File> builder = Thumbnails.of(imageMagickImage.getFile());
+        if (outputQuality != null) {
+            builder.outputQuality(outputQuality);
+        }
+        if (resizer != null) {
+            builder.resizer(resizer);
+        }
+        
+        builder
                 .size(newWidth, newHeight)
                 .keepAspectRatio(conserveAspectRatio)
                 .toFile(outputFile);
@@ -97,5 +127,4 @@ public class ThumnailatorImageService extends AbstractImageService {
         }
         return true;
     }
-
 }
