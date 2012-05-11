@@ -65,9 +65,13 @@ public abstract class AbstractJava2DImageService extends AbstractImageService {
             return null;
         }
         // Read image to scale
-        BufferedImage originalImage = ImageIO.read(sourceFile);
-
-        return new ImageJImage(sourceFile.getPath(), null, 0, originalImage, null, true);
+        try {
+            BufferedImage originalImage = ImageIO.read(sourceFile);
+            return new ImageJImage(sourceFile.getPath(), null, 0, originalImage, null, true);
+        } catch (IOException ioe) {
+            System.err.println("Image reading for file " + sourceFile + " is not supported by this implementation (" + this.getClass().getName() + ")");
+            return null;
+        }
     }
 
     public boolean resize(Image image, File outputFile, int newWidth, int newHeight, AbstractImageService.ResizeType resizeType) throws IOException {

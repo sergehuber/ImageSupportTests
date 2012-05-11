@@ -1,18 +1,16 @@
 package org.jahia.application;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Iterator;
+import net.coobird.thumbnailator.Thumbnails;
+import net.coobird.thumbnailator.Thumbnails.Builder;
+import net.coobird.thumbnailator.resizers.Resizers;
+import org.apache.commons.io.FilenameUtils;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.ImageWriter;
-
-import net.coobird.thumbnailator.Thumbnails;
-import net.coobird.thumbnailator.Thumbnails.Builder;
-import net.coobird.thumbnailator.resizers.Resizers;
-
-import org.apache.commons.io.FilenameUtils;
+import java.io.File;
+import java.io.IOException;
+import java.util.Iterator;
 
 /**
  * Thumbnailator default image operation implementation
@@ -86,29 +84,39 @@ public class ThumbnailatorImageService extends AbstractImageService {
         if (ResizeType.SCALE_TO_FILL.equals(resizeType)) {
             conserveAspectRatio = false;
         }
-        Builder<File> builder = Thumbnails.of(imageMagickImage.getFile());
-        if (outputQuality != null) {
-            builder.outputQuality(outputQuality);
-        }
-        if (resizer != null) {
-            builder.resizer(resizer);
-        }
-        
-        builder
-                .size(newWidth, newHeight)
-                .keepAspectRatio(conserveAspectRatio)
-                .toFile(outputFile);
+        try {
+            Builder<File> builder = Thumbnails.of(imageMagickImage.getFile());
+            if (outputQuality != null) {
+                builder.outputQuality(outputQuality);
+            }
+            if (resizer != null) {
+                builder.resizer(resizer);
+            }
+
+            builder
+                    .size(newWidth, newHeight)
+                    .keepAspectRatio(conserveAspectRatio)
+                    .toFile(outputFile);
+        } catch (IOException ioe) {
+            System.err.println("Error trying to resize file " + imageMagickImage.getFile() + ": " + ioe.getLocalizedMessage());
+            return false;
+        }        
         return true;
     }
 
     public boolean crop(Image image, File outputFile, int left, int top, int width, int height) throws IOException {
         ImageMagickImage imageMagickImage = (ImageMagickImage) image;
 
+        try {
         Thumbnails.of(imageMagickImage.getFile())
                 .outputQuality(1.0f)
                 .sourceRegion(left, top, width, height)
                 .scale(1.0)
                 .toFile(outputFile);
+        } catch (IOException ioe) {
+            System.err.println("Error trying to crop file " + imageMagickImage.getFile() + ": " + ioe.getLocalizedMessage());
+            return false;
+        }
         return true;
     }
 
