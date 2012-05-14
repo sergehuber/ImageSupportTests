@@ -91,7 +91,9 @@ public class ImageTests {
                 accumTime += operationTotalTime;
             }
             double averageTime = accumTime / ((double) nbLoops);
-            logger.info("Total time for " + getPaddedImplementationName(jahiaImageService) + "=" + accumTime + "ms, average=" + averageTime + "ms");
+            logger.info("Total time for " + getPaddedImplementationName(jahiaImageService) + "=" +
+                    getLeftPaddedString(Double.toString(accumTime), 7) +
+                    "ms, average=" + getLeftPaddedString(Double.toString(averageTime),6) + "ms");
         }
     }
 
@@ -112,7 +114,9 @@ public class ImageTests {
                 accumTime += operationTotalTime;
             }
             double averageTime = accumTime / ((double) nbLoops);
-            logger.info("Total time for " + getPaddedImplementationName(jahiaImageService) + "=" + accumTime + "ms, average=" + averageTime + "ms");
+            logger.info("Total time for " + getPaddedImplementationName(jahiaImageService) + "=" +
+                    getLeftPaddedString(Double.toString(accumTime), 7) +
+                    "ms, average=" + getLeftPaddedString(Double.toString(averageTime),6) + "ms");
         }
     }
 
@@ -135,7 +139,9 @@ public class ImageTests {
                 accumTime += operationTotalTime;
             }
             double averageTime = accumTime / ((double) nbLoops);
-            logger.info("Total time for " + getPaddedImplementationName(jahiaImageService) + "=" + accumTime + "ms, average=" + averageTime + "ms");
+            logger.info("Total time for " + getPaddedImplementationName(jahiaImageService) + "=" +
+                    getLeftPaddedString(Double.toString(accumTime), 7) +
+                    "ms, average=" + getLeftPaddedString(Double.toString(averageTime),6) + "ms");
         }
     }
 
@@ -243,6 +249,18 @@ public class ImageTests {
         for (int i=0; i < longestServiceName - imageService.getImplementationName().length(); i++) {
             result.append(" ");
         }
+        return result.toString();
+    }
+
+    private String getLeftPaddedString(String stringToPad, int totalLength) {
+        if (stringToPad.length() >= totalLength) {
+            return stringToPad;
+        }
+        StringBuilder result = new StringBuilder();
+        for (int i=0; i < totalLength - stringToPad.length(); i++) {
+            result.append(" ");
+        }
+        result.append(stringToPad);
         return result.toString();
     }
 }

@@ -161,7 +161,9 @@ public class Java2DProgressiveBilinearImageService extends Java2DBicubicImageSer
         g.dispose();
 
         // Draw the resized image onto the destination image.
-        graphics2D.drawImage(tempImage, resizeCoords.getTargetStartPosX(), resizeCoords.getTargetStartPosY(), targetWidth, targetHeight, 0, 0, currentWidth, currentHeight, null);
+        graphics2D.drawImage(tempImage,
+                resizeCoords.getTargetStartPosX(),
+                resizeCoords.getTargetStartPosY(), targetWidth, targetHeight, 0, 0, currentWidth, currentHeight, null);
         graphics2D.dispose();
 
         return dest;
