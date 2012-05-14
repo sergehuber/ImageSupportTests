@@ -2,7 +2,7 @@ package org.jahia.application;
 
 import net.coobird.thumbnailator.resizers.Resizers;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.xml.DOMConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,10 +42,15 @@ public class ImageTests {
 
     public List<JahiaImageService> availableImageServices = new ArrayList<JahiaImageService>();
 
+    private int longestServiceName = -1;
+
     public ImageTests() {
         for (JahiaImageService jahiaImageService : IMAGE_SERVICE_IMPLs) {
             if (jahiaImageService.isAvailable()) {
                 availableImageServices.add(jahiaImageService);
+                if (jahiaImageService.getImplementationName().length() > longestServiceName) {
+                    longestServiceName = jahiaImageService.getImplementationName().length();
+                }
             }
         }
     }
@@ -86,7 +91,7 @@ public class ImageTests {
                 accumTime += operationTotalTime;
             }
             double averageTime = accumTime / ((double) nbLoops);
-            logger.info("Accumulated time for " + jahiaImageService.getImplementationName() + "=" + accumTime + "ms, average=" + averageTime + "ms");
+            logger.info("Total time for " + getPaddedImplementationName(jahiaImageService) + "=" + accumTime + "ms, average=" + averageTime + "ms");
         }
     }
 
@@ -107,7 +112,7 @@ public class ImageTests {
                 accumTime += operationTotalTime;
             }
             double averageTime = accumTime / ((double) nbLoops);
-            logger.info("Accumulated time for " + jahiaImageService.getImplementationName() + "=" + accumTime + "ms, average=" + averageTime + "ms");
+            logger.info("Total time for " + getPaddedImplementationName(jahiaImageService) + "=" + accumTime + "ms, average=" + averageTime + "ms");
         }
     }
 
@@ -130,7 +135,7 @@ public class ImageTests {
                 accumTime += operationTotalTime;
             }
             double averageTime = accumTime / ((double) nbLoops);
-            logger.info("Accumulated time for " + jahiaImageService.getImplementationName() + "=" + accumTime + "ms, average=" + averageTime + "ms");
+            logger.info("Total time for " + getPaddedImplementationName(jahiaImageService) + "=" + accumTime + "ms, average=" + averageTime + "ms");
         }
     }
 
@@ -142,7 +147,7 @@ public class ImageTests {
         int nbWarmupLoops = 100;
 
         // Set up a simple configuration that logs on the console.
-        BasicConfigurator.configure();
+        DOMConfigurator.configure(ImageTests.class.getResource("/log4j.xml"));
 
         if (args == null || args.length == 0) {
             logger.info("Syntax : ImageSupportTests FILE_OR_DIRECTORY [NB_LOOPS] [NB_WARMUP_LOOPS] [WIDTH] [HEIGHT]");
@@ -230,5 +235,14 @@ public class ImageTests {
         return destFile;
     }
 
-
+    private String getPaddedImplementationName(JahiaImageService imageService) {
+        if (imageService.getImplementationName().length() > longestServiceName) {
+            return imageService.getImplementationName();
+        }
+        StringBuilder result = new StringBuilder(imageService.getImplementationName());
+        for (int i=0; i < longestServiceName - imageService.getImplementationName().length(); i++) {
+            result.append(" ");
+        }
+        return result.toString();
+    }
 }

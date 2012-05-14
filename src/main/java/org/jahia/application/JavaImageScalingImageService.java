@@ -2,6 +2,8 @@ package org.jahia.application;
 
 import com.mortennobel.imagescaling.AdvancedResizeOp;
 import com.mortennobel.imagescaling.ResampleOp;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -14,6 +16,8 @@ import java.io.IOException;
  * found at : http://code.google.com/p/java-image-scaling/
  */
 public class JavaImageScalingImageService extends AbstractJava2DImageService {
+
+    private static final Logger logger = LoggerFactory.getLogger(JavaImageScalingImageService.class);
 
     public String getImplementationName() {
         return "JavaImageScaling";
@@ -67,9 +71,13 @@ public class JavaImageScalingImageService extends AbstractJava2DImageService {
     }
 
     public boolean resizeImage(Image image, File outputFile, int width, int height, ResizeType resizeType) throws IOException {
+        try {
         BufferedImage originalImage = ((BufferImage) image).getOriginalImage();
         BufferedImage destImage = resizeImage(originalImage, width, height, resizeType);
         saveImageToFile(destImage, outputFile);
+        } catch (Exception e) {
+            logger.error("Error while trying to resize image ", e);
+        }
         return true;
     }
 
