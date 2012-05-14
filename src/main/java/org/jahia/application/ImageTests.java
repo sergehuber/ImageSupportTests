@@ -1,8 +1,10 @@
 package org.jahia.application;
 
 import net.coobird.thumbnailator.resizers.Resizers;
-
 import org.apache.commons.io.FilenameUtils;
+import org.apache.log4j.BasicConfigurator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import java.io.File;
@@ -16,7 +18,9 @@ import java.util.List;
  */
 public class ImageTests {
 
-    public final static ImageService[] IMAGE_SERVICE_IMPLs = {
+    private static final Logger logger = LoggerFactory.getLogger(ImageTests.class);
+
+    public final static JahiaImageService[] IMAGE_SERVICE_IMPLs = {
             new Java2DLinearImageService(),
             new Java2DBicubicImageService(),
             new Java2DProgressiveBilinearImageService(),
@@ -25,107 +29,108 @@ public class ImageTests {
             new ThumbnailatorImageService(),
             new ThumbnailatorImageService("ThumbnailatorHQ", 1.0f, null),
             new ThumbnailatorImageService("ThumbnailatorProgressiveBilinear", null, Resizers.PROGRESSIVE),
-            new Im4JavaImageService()
+            new Im4JavaImageService(),
+            new JavaImageScalingImageService()
     };
 
-    public static final AbstractImageService.ResizeType[] allResizeTypes = {
-            AbstractImageService.ResizeType.SCALE_TO_FILL,
-            AbstractImageService.ResizeType.ADJUST_SIZE,
-            AbstractImageService.ResizeType.ASPECT_FILL,
-            AbstractImageService.ResizeType.ASPECT_FIT
+    public static final AbstractJahiaImageService.ResizeType[] allResizeTypes = {
+            AbstractJahiaImageService.ResizeType.SCALE_TO_FILL,
+            AbstractJahiaImageService.ResizeType.ADJUST_SIZE,
+            AbstractJahiaImageService.ResizeType.ASPECT_FILL,
+            AbstractJahiaImageService.ResizeType.ASPECT_FIT
     };
 
-    public List<ImageService> availableImageServices = new ArrayList<ImageService>();
+    public List<JahiaImageService> availableImageServices = new ArrayList<JahiaImageService>();
 
     public ImageTests() {
-        for (ImageService imageService : IMAGE_SERVICE_IMPLs) {
-            if (imageService.isAvailable()) {
-                availableImageServices.add(imageService);
+        for (JahiaImageService jahiaImageService : IMAGE_SERVICE_IMPLs) {
+            if (jahiaImageService.isAvailable()) {
+                availableImageServices.add(jahiaImageService);
             }
         }
     }
 
     public void warmup(File originalFile, int newWidth, int newHeight, int nbWarmupLoops) throws IOException {
         // first result is discarded, as VM needs time to heat up.
-        System.out.println("Warming up Java VM with " + nbWarmupLoops + " warmup loops...");
+        logger.info("Warming up Java VM with " + nbWarmupLoops + " warmup loops...");
         for (int i = 0; i < nbWarmupLoops; i++) {
-            for (ImageService imageService : availableImageServices) {
-                File destFile = getDestFile(imageService.getImplementationName(), originalFile, "resizeTo" + Integer.toString(newWidth) + "x" + Integer.toString(newHeight) + ImageService.ResizeType.SCALE_TO_FILL);
-                Image image = imageService.getImage(originalFile);
+            for (JahiaImageService jahiaImageService : availableImageServices) {
+                File destFile = getDestFile(jahiaImageService.getImplementationName(), originalFile, "resizeTo" + Integer.toString(newWidth) + "x" + Integer.toString(newHeight) + JahiaImageService.ResizeType.SCALE_TO_FILL);
+                Image image = jahiaImageService.getImage(originalFile);
                 if (image == null) {
                     continue;
                 }
-                imageService.resize(image, destFile, newWidth, newHeight, ImageService.ResizeType.SCALE_TO_FILL);
+                jahiaImageService.resizeImage(image, destFile, newWidth, newHeight, JahiaImageService.ResizeType.SCALE_TO_FILL);
             }
         }
     }
 
-    public void runResize(File originalFile, int imageWidth, int imageHeight, int nbLoops, AbstractImageService.ResizeType resizeType) throws IOException {
-        System.out.println("Testing and benchmarking image resizing for " + originalFile + " (" + nbLoops + " loops each, resizing to " + imageWidth + "x" + imageHeight + " with resize type = " + resizeType + ")...");
+    public void runResize(File originalFile, int imageWidth, int imageHeight, int nbLoops, AbstractJahiaImageService.ResizeType resizeType) throws IOException {
+        logger.info("Testing and benchmarking image resizing for " + originalFile + " (" + nbLoops + " loops each, resizing to " + imageWidth + "x" + imageHeight + " with resize type = " + resizeType + ")...");
 
-        for (ImageService imageService : availableImageServices) {
-            List<AbstractImageService.ResizeType> supportedResizeTypes = Arrays.asList(imageService.getSupportedResizeTypes());
+        for (JahiaImageService jahiaImageService : availableImageServices) {
+            List<AbstractJahiaImageService.ResizeType> supportedResizeTypes = Arrays.asList(jahiaImageService.getSupportedResizeTypes());
             if (!supportedResizeTypes.contains(resizeType)) {
                 continue;
             }
             long accumTime = 0;
             for (int i = 0; i < nbLoops; i++) {
                 long startTime = System.currentTimeMillis();
-                Image image = imageService.getImage(originalFile);
+                Image image = jahiaImageService.getImage(originalFile);
                 if (image == null) {
                     continue;
                 }
-                File destFile = getDestFile(imageService.getImplementationName(), originalFile, "resizeTo" + Integer.toString(imageWidth) + "x" + Integer.toString(imageHeight) + resizeType);
-                imageService.resize(image, destFile, imageWidth, imageHeight, resizeType);
+                File destFile = getDestFile(jahiaImageService.getImplementationName(), originalFile, "resizeTo" + Integer.toString(imageWidth) + "x" + Integer.toString(imageHeight) + resizeType);
+                jahiaImageService.resizeImage(image, destFile, imageWidth, imageHeight, resizeType);
                 long operationTotalTime = System.currentTimeMillis() - startTime;
                 accumTime += operationTotalTime;
             }
             double averageTime = accumTime / ((double) nbLoops);
-            System.out.println("Accumulated time for " + imageService.getImplementationName() + "=" + accumTime + "ms, average=" + averageTime + "ms");
+            logger.info("Accumulated time for " + jahiaImageService.getImplementationName() + "=" + accumTime + "ms, average=" + averageTime + "ms");
         }
     }
 
     public void runCrop(File originalFile, int left, int top, int width, int height, int nbLoops) throws IOException {
-        System.out.println("Testing and benchmarking image cropping for " + originalFile + " (" + nbLoops + " loops each, cropping from " + left + "," + top + " to size " + width + "x" + height + ")...");
+        logger.info("Testing and benchmarking image cropping for " + originalFile + " (" + nbLoops + " loops each, cropping from " + left + "," + top + " to size " + width + "x" + height + ")...");
 
-        for (ImageService imageService : availableImageServices) {
+        for (JahiaImageService jahiaImageService : availableImageServices) {
             long accumTime = 0;
             for (int i = 0; i < nbLoops; i++) {
                 long startTime = System.currentTimeMillis();
-                Image image = imageService.getImage(originalFile);
+                Image image = jahiaImageService.getImage(originalFile);
                 if (image == null) {
                     continue;
                 }
-                File destFile = getDestFile(imageService.getImplementationName(), originalFile, "cropTo" + Integer.toString(width) + "x" + Integer.toString(height));
-                imageService.crop(image, destFile, left, top, width, height);
+                File destFile = getDestFile(jahiaImageService.getImplementationName(), originalFile, "cropTo" + Integer.toString(width) + "x" + Integer.toString(height));
+                jahiaImageService.cropImage(image, destFile, left, top, width, height);
                 long operationTotalTime = System.currentTimeMillis() - startTime;
                 accumTime += operationTotalTime;
             }
             double averageTime = accumTime / ((double) nbLoops);
-            System.out.println("Accumulated time for " + imageService.getImplementationName() + "=" + accumTime + "ms, average=" + averageTime + "ms");
+            logger.info("Accumulated time for " + jahiaImageService.getImplementationName() + "=" + accumTime + "ms, average=" + averageTime + "ms");
         }
     }
 
     public void runRotate(File originalFile, int nbLoops) throws IOException {
-        System.out.println("Testing and benchmarking image rotating for " + originalFile + " (" + nbLoops + " loops each, rotating counter clockwise)...");
+        logger.info("Testing and benchmarking image rotating for " + originalFile + " (" + nbLoops + " loops each, rotating counter clockwise)...");
 
-        for (ImageService imageService : availableImageServices) {
+        for (JahiaImageService jahiaImageService : availableImageServices) {
             long accumTime = 0;
             for (int i = 0; i < nbLoops; i++) {
                 long startTime = System.currentTimeMillis();
-                Image image = imageService.getImage(originalFile);
+                Image image = jahiaImageService.getImage(originalFile);
                 if (image == null) {
                     continue;
                 }
-                File destFile = getDestFile(imageService.getImplementationName(), originalFile, "rotateCounterClockwise");
-                imageService.rotate(image, destFile, false);
-                destFile = getDestFile(imageService.getImplementationName(), originalFile, "rotateClockwise");
-                imageService.rotate(image, destFile, true);
+                File destFile = getDestFile(jahiaImageService.getImplementationName(), originalFile, "rotateCounterClockwise");
+                jahiaImageService.rotateImage(image, destFile, false);
+                destFile = getDestFile(jahiaImageService.getImplementationName(), originalFile, "rotateClockwise");
+                jahiaImageService.rotateImage(image, destFile, true);
                 long operationTotalTime = System.currentTimeMillis() - startTime;
                 accumTime += operationTotalTime;
             }
             double averageTime = accumTime / ((double) nbLoops);
-            System.out.println("Accumulated time for " + imageService.getImplementationName() + "=" + accumTime + "ms, average=" + averageTime + "ms");
+            logger.info("Accumulated time for " + jahiaImageService.getImplementationName() + "=" + accumTime + "ms, average=" + averageTime + "ms");
         }
     }
 
@@ -136,8 +141,11 @@ public class ImageTests {
         int nbLoops = 100;
         int nbWarmupLoops = 100;
 
+        // Set up a simple configuration that logs on the console.
+        BasicConfigurator.configure();
+
         if (args == null || args.length == 0) {
-            System.out.println("Syntax : ImageSupportTests FILE_OR_DIRECTORY [NB_LOOPS] [NB_WARMUP_LOOPS] [WIDTH] [HEIGHT]");
+            logger.info("Syntax : ImageSupportTests FILE_OR_DIRECTORY [NB_LOOPS] [NB_WARMUP_LOOPS] [WIDTH] [HEIGHT]");
             Runtime.getRuntime().exit(1);
             return;
         }
@@ -162,14 +170,14 @@ public class ImageTests {
 
         if (sourceFile.isFile() && sourceFile.canRead()) {
             imageTests.warmup(sourceFile, imageWidth, imageHeight, nbWarmupLoops);
-            for (AbstractImageService.ResizeType resizeType : allResizeTypes) {
+            for (AbstractJahiaImageService.ResizeType resizeType : allResizeTypes) {
                 imageTests.runResize(sourceFile, imageWidth, imageHeight, nbLoops, resizeType);
             }
             imageTests.runCrop(sourceFile, 10, 10, 100, 100, nbLoops);
             imageTests.runRotate(sourceFile, nbLoops);
         } else {
             if (!sourceFile.isDirectory()) {
-                System.err.println("Expected directory but found invalid file instead " + sourceFile);
+                logger.error("Expected directory but found invalid file instead " + sourceFile);
                 return;
             }
             File[] directoryFiles = sourceFile.listFiles();
@@ -178,7 +186,7 @@ public class ImageTests {
                     continue;
                 }
                 if (directoryFile.isFile() && directoryFile.canRead()) {
-                    for (AbstractImageService.ResizeType resizeType : allResizeTypes) {
+                    for (AbstractJahiaImageService.ResizeType resizeType : allResizeTypes) {
                         imageTests.runResize(directoryFile, imageWidth, imageHeight, 1, resizeType);
                     }
                     imageTests.runCrop(directoryFile, 10, 10, 100, 100, 1);
@@ -205,8 +213,8 @@ public class ImageTests {
                 writeMimeTypes.append(",");
             }
         }
-        System.out.println("VM supported read image types = " + readMimeTypes);
-        System.out.println("VM supported write image types = " + writeMimeTypes);
+        logger.info("VM supported read image types = " + readMimeTypes);
+        logger.info("VM supported write image types = " + writeMimeTypes);
     }
 
     private File getDestFile(String implementationName, File originalFile, String operationName) {
@@ -218,7 +226,7 @@ public class ImageTests {
         }
         new File(newPath).mkdirs();
         File destFile = new File(newPath + File.separator + originalFileBaseName + "." + implementationName + "." + operationName + "." + FilenameUtils.getExtension(originalFile.getPath()));
-        // System.out.println("Using destFile=" + destFile);
+        // logger.info("Using destFile=" + destFile);
         return destFile;
     }
 

@@ -21,17 +21,20 @@ public class Java2DProgressiveBilinearImageService extends Java2DBicubicImageSer
         return "Java2DProgressiveBilinear";    //To change body of overridden methods use File | Settings | File Templates.
     }
 
-    protected Graphics2D getGraphics2D(BufferedImage dest) {
+    protected Graphics2D getGraphics2D(BufferedImage dest, OperationType operationType) {
         // Paint source image into the destination, scaling as needed
         Graphics2D graphics2D = dest.createGraphics();
         if (dest.getColorModel() instanceof IndexColorModel) {
-            graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-            graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
-            graphics2D.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
-            graphics2D.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
-            graphics2D.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-            graphics2D.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_DISABLE);
+            if (OperationType.RESIZE.equals(operationType)) {
+                graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+                graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+                graphics2D.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+                graphics2D.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
+                graphics2D.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+                graphics2D.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_DISABLE);
+            }
             graphics2D.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC));
+            /*
             IndexColorModel indexColorModel = (IndexColorModel) dest.getColorModel();
             int transparentPixelIndex = indexColorModel.getTransparentPixel();
             if (transparentPixelIndex > -1) {
@@ -42,25 +45,40 @@ public class Java2DProgressiveBilinearImageService extends Java2DBicubicImageSer
                 graphics2D.setPaint(transparentColor);
                 graphics2D.fillRect(0, 0, dest.getWidth(), dest.getHeight());
             }
+            */
         } else {
-            graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-            graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            graphics2D.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
-            graphics2D.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
-            graphics2D.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-            graphics2D.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_DEFAULT);
+            if (OperationType.RESIZE.equals(operationType)) {
+                graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                graphics2D.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+                graphics2D.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
+                graphics2D.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+                graphics2D.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_DEFAULT);
+            }
         }
         return graphics2D;
     }
 
     @Override
-    public boolean resize(Image image, File outputFile, int newWidth, int newHeight, ResizeType resizeType) throws IOException {
+    public boolean resizeImage(Image image, File outputFile, int newWidth, int newHeight, ResizeType resizeType) throws IOException {
 
-        BufferedImage originalImage = ((ImageJImage) image).getOriginalImage();
+        BufferedImage originalImage = ((BufferImage) image).getOriginalImage();
 
-        ResizeCoords resizeCoords = getResizeCoords(resizeType, originalImage.getWidth(), originalImage.getHeight(), newWidth, newHeight);
+        BufferedImage dest = resizeImage(originalImage, newWidth, newHeight, resizeType);
+        if (dest == null) {
+            return false;
+        }
+
+        // Save destination image
+        saveImageToFile(dest, outputFile);
+        return true;
+    }
+
+    @Override
+    public BufferedImage resizeImage(BufferedImage image, int width, int newHeight, ResizeType resizeType) {
+        ResizeCoords resizeCoords = getResizeCoords(resizeType, image.getWidth(), image.getHeight(), width, newHeight);
         if (ResizeType.ADJUST_SIZE.equals(resizeType)) {
-            newWidth = resizeCoords.getTargetWidth();
+            width = resizeCoords.getTargetWidth();
             newHeight = resizeCoords.getTargetHeight();
         }
 
@@ -69,14 +87,14 @@ public class Java2DProgressiveBilinearImageService extends Java2DBicubicImageSer
         int targetWidth = resizeCoords.getTargetWidth();
         int targetHeight = resizeCoords.getTargetHeight();
 
-        BufferedImage dest = getDestImage(newWidth, newHeight, originalImage);
+        BufferedImage dest = getDestImage(width, newHeight, image);
 
         // Paint source image into the destination, scaling as needed
-        Graphics2D graphics2D = getGraphics2D(dest);
+        Graphics2D graphics2D = getGraphics2D(dest, OperationType.RESIZE);
 
         // If multi-step downscaling is not required, perform one-step.
-        if ((newWidth * 2 >= resizeCoords.getSourceWidth()) && (newHeight * 2 >= resizeCoords.getSourceHeight())) {
-            graphics2D.drawImage(originalImage,
+        if ((width * 2 >= resizeCoords.getSourceWidth()) && (newHeight * 2 >= resizeCoords.getSourceHeight())) {
+            graphics2D.drawImage(image,
                     resizeCoords.getTargetStartPosX(), resizeCoords.getTargetStartPosY(),
                     resizeCoords.getTargetStartPosX() + resizeCoords.getTargetWidth(), resizeCoords.getTargetStartPosY() + resizeCoords.getTargetHeight(),
                     resizeCoords.getSourceStartPosX(), resizeCoords.getSourceStartPosY(),
@@ -84,8 +102,7 @@ public class Java2DProgressiveBilinearImageService extends Java2DBicubicImageSer
                     null);
             graphics2D.dispose();
             // Save destination image
-            saveImageToFile(dest, outputFile);
-            return true;
+            return dest;
         }
 
         // Temporary image used for in-place resizing of image.
@@ -95,7 +112,7 @@ public class Java2DProgressiveBilinearImageService extends Java2DBicubicImageSer
                 dest.getType()
         );
 
-        Graphics2D g = getGraphics2D(tempImage);
+        Graphics2D g = getGraphics2D(tempImage, OperationType.RESIZE);
         g.setComposite(AlphaComposite.Src);
 
         /*
@@ -116,7 +133,7 @@ public class Java2DProgressiveBilinearImageService extends Java2DBicubicImageSer
         currentHeight = startHeight / 2;
 
         // Perform first resize step.
-        g.drawImage(originalImage, 0, 0, currentWidth, currentHeight,
+        g.drawImage(image, 0, 0, currentWidth, currentHeight,
                 resizeCoords.getSourceStartPosX(), resizeCoords.getSourceStartPosY(),
                 resizeCoords.getSourceStartPosX() + resizeCoords.getSourceWidth(), resizeCoords.getSourceStartPosY() + resizeCoords.getSourceHeight(),
                 null);
@@ -146,8 +163,7 @@ public class Java2DProgressiveBilinearImageService extends Java2DBicubicImageSer
         // Draw the resized image onto the destination image.
         graphics2D.drawImage(tempImage, resizeCoords.getTargetStartPosX(), resizeCoords.getTargetStartPosY(), targetWidth, targetHeight, 0, 0, currentWidth, currentHeight, null);
         graphics2D.dispose();
-        // Save destination image
-        saveImageToFile(dest, outputFile);
-        return true;
+
+        return dest;
     }
 }

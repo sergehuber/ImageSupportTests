@@ -1,17 +1,34 @@
 package org.jahia.application;
 
+import com.mortennobel.imagescaling.AdvancedResizeOp;
+import com.mortennobel.imagescaling.ResampleOp;
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.IndexColorModel;
+import java.io.File;
+import java.io.IOException;
 
 /**
- * Java2D bicubic interpolation image operations implementation
+ * Image service implementation based on the Java Image Scaling library
+ * found at : http://code.google.com/p/java-image-scaling/
  */
-public class Java2DBicubicImageService extends AbstractJava2DImageService {
+public class JavaImageScalingImageService extends AbstractJava2DImageService {
 
     public String getImplementationName() {
-        return "Java2DBicubic";
+        return "JavaImageScaling";
     }
+
+    public boolean isAvailable() {
+        return true;
+    }
+
+    public ResizeType[] getSupportedResizeTypes() {
+        return new ResizeType[]{
+                ResizeType.SCALE_TO_FILL,
+        };
+    }
+
 
     protected Graphics2D getGraphics2D(BufferedImage dest, OperationType operationType) {
         // Paint source image into the destination, scaling as needed
@@ -49,5 +66,17 @@ public class Java2DBicubicImageService extends AbstractJava2DImageService {
         return graphics2D;
     }
 
+    public boolean resizeImage(Image image, File outputFile, int width, int height, ResizeType resizeType) throws IOException {
+        BufferedImage originalImage = ((BufferImage) image).getOriginalImage();
+        BufferedImage destImage = resizeImage(originalImage, width, height, resizeType);
+        saveImageToFile(destImage, outputFile);
+        return true;
+    }
+
+    public BufferedImage resizeImage(BufferedImage originalImage, int width, int height, ResizeType resizeType) {
+        ResampleOp resampleOp = new ResampleOp(width,height);
+        resampleOp.setUnsharpenMask(AdvancedResizeOp.UnsharpenMask.Normal);
+        return resampleOp.filter(originalImage, null);
+    }
 
 }

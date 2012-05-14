@@ -1,6 +1,8 @@
 package org.jahia.application;
 
 import org.apache.commons.io.FilenameUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
@@ -18,13 +20,19 @@ import java.util.Iterator;
 /**
  * Abstract Java2D common image operation implementations
  */
-public abstract class AbstractJava2DImageService extends AbstractImageService {
+public abstract class AbstractJava2DImageService extends AbstractJahiaImageService {
+
+    private static final Logger logger = LoggerFactory.getLogger(AbstractJava2DImageService.class);
 
     public boolean isAvailable() {
         return true;
     }
 
-    protected abstract Graphics2D getGraphics2D(BufferedImage bufferedImage);
+    public enum OperationType {
+        RESIZE, CROP, ROTATE
+    }
+
+    protected abstract Graphics2D getGraphics2D(BufferedImage bufferedImage, OperationType operationType);
 
     protected boolean canRead(File sourceFile) {
         String sourceFileExtension = FilenameUtils.getExtension(sourceFile.getPath());
@@ -46,7 +54,7 @@ public abstract class AbstractJava2DImageService extends AbstractImageService {
             imageWriter.write(dest);
             imageOutputStream.close();
         } else {
-            System.err.println("Couldn't find a writer for extension : " + fileExtension + "(" + this.getClass().getName() + ")");
+            logger.error("Couldn't find a writer for extension : " + fileExtension + "(" + this.getClass().getName() + ")");
         }
     }
 
@@ -61,46 +69,51 @@ public abstract class AbstractJava2DImageService extends AbstractImageService {
 
     public Image getImage(File sourceFile) throws IOException {
         if (!canRead(sourceFile)) {
-            System.err.println("Image reading for file " + sourceFile + " is not supported by this implementation (" + this.getClass().getName() + ")");
+            logger.error("Image reading for file " + sourceFile + " is not supported by this implementation (" + this.getClass().getName() + ")");
             return null;
         }
         // Read image to scale
         try {
             BufferedImage originalImage = ImageIO.read(sourceFile);
-            return new ImageJImage(sourceFile.getPath(), null, 0, originalImage, null, true);
+            return new BufferImage(sourceFile.getPath(), originalImage, null);
         } catch (IOException ioe) {
-            System.err.println("Image reading for file " + sourceFile + " is not supported by this implementation (" + this.getClass().getName() + ")");
+            logger.error("Image reading for file " + sourceFile + " is not supported by this implementation (" + this.getClass().getName() + ")");
             return null;
         }
     }
 
-    public boolean resize(Image image, File outputFile, int newWidth, int newHeight, AbstractImageService.ResizeType resizeType) throws IOException {
+    public boolean resizeImage(Image image, File outputFile, int newWidth, int newHeight, AbstractJahiaImageService.ResizeType resizeType) throws IOException {
 
-        BufferedImage originalImage = ((ImageJImage) image).getOriginalImage();
+        BufferedImage originalImage = ((BufferImage) image).getOriginalImage();
 
-        ResizeCoords resizeCoords = getResizeCoords(resizeType, originalImage.getWidth(), originalImage.getHeight(), newWidth, newHeight);
+        BufferedImage dest = resizeImage(originalImage, newWidth, newHeight, resizeType);
+
+        // Save destination image
+        saveImageToFile(dest, outputFile);
+
+        return true;
+    }
+
+    public BufferedImage resizeImage(BufferedImage image, int width, int newHeight, ResizeType resizeType) {
+        ResizeCoords resizeCoords = getResizeCoords(resizeType, image.getWidth(), image.getHeight(), width, newHeight);
         if (ResizeType.ADJUST_SIZE.equals(resizeType)) {
-            newWidth = resizeCoords.getTargetWidth();
+            width = resizeCoords.getTargetWidth();
             newHeight = resizeCoords.getTargetHeight();
         }
 
-        BufferedImage dest = getDestImage(newWidth, newHeight, originalImage);
+        BufferedImage dest = getDestImage(width, newHeight, image);
 
         // Paint source image into the destination, scaling as needed
-        Graphics2D graphics2D = getGraphics2D(dest);
+        Graphics2D graphics2D = getGraphics2D(dest, OperationType.RESIZE);
 
-        graphics2D.drawImage(originalImage,
+        graphics2D.drawImage(image,
                 resizeCoords.getTargetStartPosX(), resizeCoords.getTargetStartPosY(),
                 resizeCoords.getTargetStartPosX() + resizeCoords.getTargetWidth(), resizeCoords.getTargetStartPosY() + resizeCoords.getTargetHeight(),
                 resizeCoords.getSourceStartPosX(), resizeCoords.getSourceStartPosY(),
                 resizeCoords.getSourceStartPosX() + resizeCoords.getSourceWidth(), resizeCoords.getSourceStartPosY() + resizeCoords.getSourceHeight(),
                 null);
         graphics2D.dispose();
-
-        // Save destination image
-        saveImageToFile(dest, outputFile);
-
-        return true;
+        return dest;
     }
 
     protected BufferedImage getDestImage(int newWidth, int newHeight, BufferedImage originalImage) {
@@ -114,9 +127,9 @@ public abstract class AbstractJava2DImageService extends AbstractImageService {
         return dest;
     }
 
-    public boolean crop(Image image, File outputFile, int left, int top, int width, int height) throws IOException {
+    public boolean cropImage(Image image, File outputFile, int left, int top, int width, int height) throws IOException {
 
-        BufferedImage originalImage = ((ImageJImage) image).getOriginalImage();
+        BufferedImage originalImage = ((BufferImage) image).getOriginalImage();
 
         int clippingWidth = width;
         if (left + clippingWidth > originalImage.getWidth()) {
@@ -127,7 +140,7 @@ public abstract class AbstractJava2DImageService extends AbstractImageService {
             clippingHeight = originalImage.getHeight() - top;
         }
         BufferedImage clipping = getDestImage(clippingWidth, clippingHeight, originalImage);
-        Graphics2D area = getGraphics2D(clipping);
+        Graphics2D area = getGraphics2D(clipping, OperationType.CROP);
         area.drawImage(originalImage, 0, 0, clippingWidth, clippingHeight, left, top, left + clippingWidth,
                 top + clippingHeight, null);
         area.dispose();
@@ -138,13 +151,13 @@ public abstract class AbstractJava2DImageService extends AbstractImageService {
         return true;
     }
 
-    public boolean rotate(Image image, File outputFile, boolean clockwise) throws IOException {
+    public boolean rotateImage(Image image, File outputFile, boolean clockwise) throws IOException {
 
-        BufferedImage originalImage = ((ImageJImage) image).getOriginalImage();
+        BufferedImage originalImage = ((BufferImage) image).getOriginalImage();
 
         BufferedImage dest = getDestImage(originalImage.getHeight(), originalImage.getWidth(), originalImage);
         // Paint source image into the destination, scaling as needed
-        Graphics2D graphics2D = getGraphics2D(dest);
+        Graphics2D graphics2D = getGraphics2D(dest, OperationType.ROTATE);
 
         double angle = Math.toRadians(clockwise ? 90 : -90);
         double sin = Math.abs(Math.sin(angle)), cos = Math.abs(Math.cos(angle));
@@ -164,4 +177,13 @@ public abstract class AbstractJava2DImageService extends AbstractImageService {
         return true;
     }
 
+    public int getHeight(Image i) {
+        BufferImage bufferImage = ((BufferImage)i);
+        return bufferImage.getOriginalImage().getHeight();
+    }
+
+    public int getWidth(Image i) {
+        BufferImage bufferImage = ((BufferImage)i);
+        return bufferImage.getOriginalImage().getWidth();
+    }
 }

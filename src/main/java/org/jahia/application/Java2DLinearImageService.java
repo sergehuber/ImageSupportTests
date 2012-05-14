@@ -12,13 +12,15 @@ public class Java2DLinearImageService extends AbstractJava2DImageService {
         return "Java2DLinear";
     }
 
-    protected Graphics2D getGraphics2D(BufferedImage dest) {
+    protected Graphics2D getGraphics2D(BufferedImage dest, OperationType operationType) {
         // Paint source image into the destination, scaling as needed
         Graphics2D graphics2D = dest.createGraphics();
-        graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON);
+        if (OperationType.RESIZE.equals(operationType)) {
+            graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+                    RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+            graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON);
+        }
         return graphics2D;
     }
 

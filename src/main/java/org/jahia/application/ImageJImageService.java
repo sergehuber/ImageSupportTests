@@ -7,6 +7,8 @@ import ij.io.Opener;
 import ij.plugin.PlugIn;
 import ij.process.Blitter;
 import ij.process.ImageProcessor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -15,7 +17,9 @@ import java.io.IOException;
 /**
  * ImageJ image operation implementation
  */
-public class ImageJImageService extends AbstractImageService {
+public class ImageJImageService extends AbstractJahiaImageService {
+
+    private static final Logger logger = LoggerFactory.getLogger(ImageJImageService.class);
 
     public String getImplementationName() {
         return "ImageJ";
@@ -37,18 +41,16 @@ public class ImageJImageService extends AbstractImageService {
     public Image getImage(File sourceFile) throws IOException {
         ImagePlus ip = null;
         Opener op = new Opener();
-        BufferedImage originalImage = null;
-        boolean java2DUsed = false;
         int fileType = op.getFileType(sourceFile.getPath());
         ip = op.openImage(sourceFile.getPath());
         if (ip == null) {
-            System.err.println("Couldn't open file " + sourceFile + " with ImageJ !");
+            logger.error("Couldn't open file " + sourceFile + " with ImageJ !");
             return null;
         }
-        return new ImageJImage(sourceFile.getPath(), ip, fileType, originalImage, null, java2DUsed);
+        return new ImageJImage(sourceFile.getPath(), ip, fileType);
     }
 
-    public boolean resize(Image image, File outputFile, int newWidth, int newHeight, ResizeType resizeType) throws IOException {
+    public boolean resizeImage(Image image, File outputFile, int newWidth, int newHeight, ResizeType resizeType) throws IOException {
 
         ImageJImage imageJImage = (ImageJImage) image;
         ImagePlus ip = imageJImage.getImagePlus();
@@ -84,7 +86,11 @@ public class ImageJImageService extends AbstractImageService {
         return save(imageJImage.getImageType(), ip, outputFile);
     }
 
-    public boolean crop(Image image, File outputFile, int left, int top, int width, int height) throws IOException {
+    public BufferedImage resizeImage(BufferedImage image, int width, int height, ResizeType resizeType) throws IOException {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public boolean cropImage(Image image, File outputFile, int left, int top, int width, int height) throws IOException {
 
         ImageJImage imageJImage = (ImageJImage) image;
         ImagePlus ip = imageJImage.getImagePlus();
@@ -99,7 +105,7 @@ public class ImageJImageService extends AbstractImageService {
 
     }
 
-    public boolean rotate(Image image, File outputFile, boolean clockwise) throws IOException {
+    public boolean rotateImage(Image image, File outputFile, boolean clockwise) throws IOException {
 
         ImageJImage imageJImage = (ImageJImage) image;
         ImagePlus ip = imageJImage.getImagePlus();
@@ -147,6 +153,22 @@ public class ImageJImageService extends AbstractImageService {
                 return new FileSaver(ip).saveAsPgm(outputFile.getPath());
         }
         return false;
+    }
+
+    public int getHeight(Image i) {
+        ImagePlus ip = ((ImageJImage)i).getImagePlus();
+        if (ip != null) {
+            return ip.getHeight();
+        }
+        return -1;
+    }
+
+    public int getWidth(Image i) {
+        ImagePlus ip = ((ImageJImage)i).getImagePlus();
+        if (ip != null) {
+            return ip.getWidth();
+        }
+        return -1;
     }
 
 }
