@@ -110,12 +110,12 @@ public class Im4JavaImageService extends AbstractJahiaImageService {
             if (ce.getCause() instanceof FileNotFoundException) {
                 logger.error("Seems ImageMagick is not available (" + ce.getLocalizedMessage() + ").");
             } else {
-                ce.printStackTrace();
+                logger.error("Error executing ImageMagick command", ce);
             }
-        } catch (InterruptedException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        } catch (IM4JavaException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        } catch (InterruptedException ie) {
+            logger.error("Error executing ImageMagick command", ie);
+        } catch (IM4JavaException ije) {
+            logger.error("Error executing ImageMagick command", ije);
         }
         return false;
     }

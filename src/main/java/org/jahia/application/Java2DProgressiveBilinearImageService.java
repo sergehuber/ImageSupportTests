@@ -75,11 +75,11 @@ public class Java2DProgressiveBilinearImageService extends Java2DBicubicImageSer
     }
 
     @Override
-    public BufferedImage resizeImage(BufferedImage image, int width, int newHeight, ResizeType resizeType) {
-        ResizeCoords resizeCoords = getResizeCoords(resizeType, image.getWidth(), image.getHeight(), width, newHeight);
+    public BufferedImage resizeImage(BufferedImage image, int width, int height, ResizeType resizeType) {
+        ResizeCoords resizeCoords = getResizeCoords(resizeType, image.getWidth(), image.getHeight(), width, height);
         if (ResizeType.ADJUST_SIZE.equals(resizeType)) {
             width = resizeCoords.getTargetWidth();
-            newHeight = resizeCoords.getTargetHeight();
+            height = resizeCoords.getTargetHeight();
         }
 
         int currentWidth = resizeCoords.getSourceWidth();
@@ -87,13 +87,13 @@ public class Java2DProgressiveBilinearImageService extends Java2DBicubicImageSer
         int targetWidth = resizeCoords.getTargetWidth();
         int targetHeight = resizeCoords.getTargetHeight();
 
-        BufferedImage dest = getDestImage(width, newHeight, image);
+        BufferedImage dest = getDestImage(width, height, image);
 
         // Paint source image into the destination, scaling as needed
         Graphics2D graphics2D = getGraphics2D(dest, OperationType.RESIZE);
 
         // If multi-step downscaling is not required, perform one-step.
-        if ((width * 2 >= resizeCoords.getSourceWidth()) && (newHeight * 2 >= resizeCoords.getSourceHeight())) {
+        if ((width * 2 >= resizeCoords.getSourceWidth()) && (height * 2 >= resizeCoords.getSourceHeight())) {
             graphics2D.drawImage(image,
                     resizeCoords.getTargetStartPosX(), resizeCoords.getTargetStartPosY(),
                     resizeCoords.getTargetStartPosX() + resizeCoords.getTargetWidth(), resizeCoords.getTargetStartPosY() + resizeCoords.getTargetHeight(),
@@ -163,7 +163,7 @@ public class Java2DProgressiveBilinearImageService extends Java2DBicubicImageSer
         // Draw the resized image onto the destination image.
         graphics2D.drawImage(tempImage,
                 resizeCoords.getTargetStartPosX(),
-                resizeCoords.getTargetStartPosY(), targetWidth, targetHeight, 0, 0, currentWidth, currentHeight, null);
+                resizeCoords.getTargetStartPosY(), resizeCoords.getTargetStartPosX() + targetWidth, resizeCoords.getTargetStartPosY() + targetHeight, 0, 0, currentWidth, currentHeight, null);
         graphics2D.dispose();
 
         return dest;
