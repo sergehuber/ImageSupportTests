@@ -68,7 +68,7 @@ public class Java2DProgressiveBilinearImageService extends Java2DBicubicImageSer
         }
 
         // Save destination image
-        saveImageToFile(dest, outputFile);
+        saveImageToFile(dest, ((BufferImage) image).getMimeType(), outputFile);
         return true;
     }
 

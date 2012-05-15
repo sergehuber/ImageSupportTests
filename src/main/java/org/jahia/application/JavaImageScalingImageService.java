@@ -74,7 +74,7 @@ public class JavaImageScalingImageService extends AbstractJava2DImageService {
         try {
         BufferedImage originalImage = ((BufferImage) image).getOriginalImage();
         BufferedImage destImage = resizeImage(originalImage, width, height, resizeType);
-        saveImageToFile(destImage, outputFile);
+        saveImageToFile(destImage, ((BufferImage) image).getMimeType(), outputFile);
         } catch (Exception e) {
             logger.error("Error while trying to resize image ", e);
         }

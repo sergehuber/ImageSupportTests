@@ -1,6 +1,11 @@
 package org.jahia.application;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.tika.detect.DefaultDetector;
+import org.apache.tika.detect.Detector;
+import org.apache.tika.metadata.Metadata;
+import org.apache.tika.mime.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,7 +17,9 @@ import javax.imageio.stream.ImageOutputStream;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.IndexColorModel;
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -32,32 +39,6 @@ public abstract class AbstractJava2DImageService extends AbstractJahiaImageServi
         RESIZE, CROP, ROTATE
     }
 
-    protected abstract Graphics2D getGraphics2D(BufferedImage bufferedImage, OperationType operationType);
-
-    protected boolean canRead(File sourceFile) {
-        String sourceFileExtension = FilenameUtils.getExtension(sourceFile.getPath());
-        Iterator<ImageReader> imageReaderIterator = ImageIO.getImageReadersBySuffix(sourceFileExtension.toLowerCase());
-        if (imageReaderIterator.hasNext()) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    protected void saveImageToFile(BufferedImage dest, File destFile) throws IOException {
-        String fileExtension = FilenameUtils.getExtension(destFile.getPath()).toLowerCase();
-        Iterator<ImageWriter> suffixWriters = ImageIO.getImageWritersBySuffix(fileExtension);
-        if (suffixWriters.hasNext()) {
-            ImageWriter imageWriter = suffixWriters.next();
-            ImageOutputStream imageOutputStream = new FileImageOutputStream(destFile);
-            imageWriter.setOutput(imageOutputStream);
-            imageWriter.write(dest);
-            imageOutputStream.close();
-        } else {
-            logger.error("Couldn't find a writer for extension : " + fileExtension + "(" + this.getClass().getName() + ")");
-        }
-    }
-
     public ResizeType[] getSupportedResizeTypes() {
         return new ResizeType[]{
                 ResizeType.ADJUST_SIZE,
@@ -67,6 +48,8 @@ public abstract class AbstractJava2DImageService extends AbstractJahiaImageServi
         };
     }
 
+    private static Detector detector = new DefaultDetector();
+
     public Image getImage(File sourceFile) throws IOException {
         if (!canRead(sourceFile)) {
             logger.error("Image reading for file " + sourceFile + " is not supported by this implementation (" + this.getClass().getName() + ")");
@@ -74,8 +57,23 @@ public abstract class AbstractJava2DImageService extends AbstractJahiaImageServi
         }
         // Read image to scale
         try {
+            Metadata metadata = new Metadata();
+            metadata.set(Metadata.RESOURCE_NAME_KEY, sourceFile.getName());
+            String type = null;
+            String mediaType = null;
+            BufferedInputStream targetInputStream = null;
+            try {
+                targetInputStream = new BufferedInputStream(new FileInputStream(sourceFile));
+                MediaType detectedType = detector.detect(targetInputStream, metadata);
+                type = detectedType.getType();
+                mediaType = detectedType.toString();
+                logger.debug("Detected media type=" + mediaType);
+            } finally {
+                IOUtils.closeQuietly(targetInputStream);
+            }
+
             BufferedImage originalImage = ImageIO.read(sourceFile);
-            return new BufferImage(sourceFile.getPath(), originalImage, null);
+            return new BufferImage(sourceFile.getPath(), originalImage, mediaType);
         } catch (IOException ioe) {
             logger.error("Image reading for file " + sourceFile + " is not supported by this implementation (" + this.getClass().getName() + ")");
             return null;
@@ -89,7 +87,7 @@ public abstract class AbstractJava2DImageService extends AbstractJahiaImageServi
         BufferedImage dest = resizeImage(originalImage, newWidth, newHeight, resizeType);
 
         // Save destination image
-        saveImageToFile(dest, outputFile);
+        saveImageToFile(dest, ((BufferImage)image).getMimeType(), outputFile);
 
         return true;
     }
@@ -146,7 +144,7 @@ public abstract class AbstractJava2DImageService extends AbstractJahiaImageServi
         area.dispose();
 
         // Save destination image
-        saveImageToFile(clipping, outputFile);
+        saveImageToFile(clipping, ((BufferImage)image).getMimeType(), outputFile);
 
         return true;
     }
@@ -173,7 +171,7 @@ public abstract class AbstractJava2DImageService extends AbstractJahiaImageServi
         }
 
         // Save destination image
-        saveImageToFile(dest, outputFile);
+        saveImageToFile(dest, ((BufferImage)image).getMimeType(), outputFile);
         return true;
     }
 
@@ -186,4 +184,30 @@ public abstract class AbstractJava2DImageService extends AbstractJahiaImageServi
         BufferImage bufferImage = ((BufferImage)i);
         return bufferImage.getOriginalImage().getWidth();
     }
+
+    protected abstract Graphics2D getGraphics2D(BufferedImage bufferedImage, OperationType operationType);
+
+    protected boolean canRead(File sourceFile) {
+        String sourceFileExtension = FilenameUtils.getExtension(sourceFile.getPath());
+        Iterator<ImageReader> imageReaderIterator = ImageIO.getImageReadersBySuffix(sourceFileExtension.toLowerCase());
+        if (imageReaderIterator.hasNext()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    protected void saveImageToFile(BufferedImage dest, String mimeType, File destFile) throws IOException {
+        Iterator<ImageWriter> suffixWriters = ImageIO.getImageWritersByMIMEType(mimeType);
+        if (suffixWriters.hasNext()) {
+            ImageWriter imageWriter = suffixWriters.next();
+            ImageOutputStream imageOutputStream = new FileImageOutputStream(destFile);
+            imageWriter.setOutput(imageOutputStream);
+            imageWriter.write(dest);
+            imageOutputStream.close();
+        } else {
+            logger.warn("Couldn't find a writer for mime type : " + mimeType + "(" + this.getClass().getName() + ")");
+        }
+    }
+
 }

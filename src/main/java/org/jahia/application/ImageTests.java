@@ -29,7 +29,7 @@ public class ImageTests {
             new ThumbnailatorImageService(),
             new ThumbnailatorImageService("ThumbnailatorHQ", 1.0f, null),
             new ThumbnailatorImageService("ThumbnailatorProgressiveBilinear", null, Resizers.PROGRESSIVE),
-            new Im4JavaImageService(),
+            new ImageMagickImageService(),
             new JavaImageScalingImageService()
     };
 

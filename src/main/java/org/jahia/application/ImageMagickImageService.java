@@ -14,9 +14,9 @@ import java.util.regex.Pattern;
 /**
  * Im4Java image operations implementation
  */
-public class Im4JavaImageService extends AbstractJahiaImageService {
+public class ImageMagickImageService extends AbstractJahiaImageService {
 
-    private static final Logger logger = LoggerFactory.getLogger(Im4JavaImageService.class);
+    private static final Logger logger = LoggerFactory.getLogger(ImageMagickImageService.class);
 
     private static final Pattern GEOMETRY_PATTERN = Pattern.compile("[x+]");
 
