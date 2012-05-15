@@ -34,7 +34,6 @@ public class Java2DProgressiveBilinearImageService extends Java2DBicubicImageSer
                 graphics2D.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_DISABLE);
             }
             graphics2D.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC));
-            /*
             IndexColorModel indexColorModel = (IndexColorModel) dest.getColorModel();
             int transparentPixelIndex = indexColorModel.getTransparentPixel();
             if (transparentPixelIndex > -1) {
@@ -45,7 +44,6 @@ public class Java2DProgressiveBilinearImageService extends Java2DBicubicImageSer
                 graphics2D.setPaint(transparentColor);
                 graphics2D.fillRect(0, 0, dest.getWidth(), dest.getHeight());
             }
-            */
         } else {
             if (OperationType.RESIZE.equals(operationType)) {
                 graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
