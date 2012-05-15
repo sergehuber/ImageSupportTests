@@ -75,9 +75,6 @@ public abstract class AbstractJava2DImageService extends AbstractJahiaImageServi
         // Read image to scale
         try {
             BufferedImage originalImage = ImageIO.read(sourceFile);
-            if (originalImage.getType() != BufferedImage.TYPE_INT_ARGB) {
-                logger.warn("Non ARGB image type=" + originalImage.getType());
-            }
             return new BufferImage(sourceFile.getPath(), originalImage, null);
         } catch (IOException ioe) {
             logger.error("Image reading for file " + sourceFile + " is not supported by this implementation (" + this.getClass().getName() + ")");
