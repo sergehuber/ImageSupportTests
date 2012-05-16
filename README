@@ -181,31 +181,31 @@ Accumulated time for Thumbnailator=396ms, average=396.0ms
 Accumulated time for ThumbnailatorHQ=435ms, average=435.0ms
 Accumulated time for Im4Java=299ms, average=299.0ms
 Accumulated time for ImageJAndJava2D=422ms, average=422.0ms
-Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.application.Java2DLinearImageService)
+Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.services.image.Java2DLinearImageService)
 Testing and benchmarking image resizing for testImages/cg71_intranet_screenshot.tiff (1 loops each, resizing to 144x144 with resize type = SCALE_TO_FILL)...
-Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.application.Java2DBicubicImageService)
+Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.services.image.Java2DBicubicImageService)
 Accumulated time for Java2DLinear=1ms, average=1.0ms
-Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.application.ThumnailatorImageService)
+Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.services.image.ThumnailatorImageService)
 Accumulated time for Java2DBicubic=0ms, average=0.0ms
-Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.application.ThumbnailatorHQImageService)
+Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.services.image.ThumbnailatorHQImageService)
 Accumulated time for Thumbnailator=0ms, average=0.0ms
 Accumulated time for ThumbnailatorHQ=0ms, average=0.0ms
 Accumulated time for Im4Java=142ms, average=142.0ms
 Using ImageJ code for file testImages/cg71_intranet_screenshot.tiff...
 Accumulated time for ImageJAndJava2D=496ms, average=496.0ms
-Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.application.Java2DLinearImageService)
+Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.services.image.Java2DLinearImageService)
 Testing and benchmarking image resizing for testImages/cg71_intranet_screenshot.tiff (1 loops each, resizing to 144x144 with resize type = ADJUST_SIZE)...
-Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.application.Java2DBicubicImageService)
+Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.services.image.Java2DBicubicImageService)
 Accumulated time for Java2DLinear=0ms, average=0.0ms
 Accumulated time for Java2DBicubic=0ms, average=0.0ms
 Accumulated time for Thumbnailator=0ms, average=0.0ms
 Accumulated time for ThumbnailatorHQ=0ms, average=0.0ms
-Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.application.ThumnailatorImageService)
-Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.application.ThumbnailatorHQImageService)
+Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.services.image.ThumnailatorImageService)
+Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.services.image.ThumbnailatorHQImageService)
 Accumulated time for Im4Java=149ms, average=149.0ms
 Using ImageJ code for file testImages/cg71_intranet_screenshot.tiff...
-Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.application.Java2DLinearImageService)
-Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.application.Java2DBicubicImageService)
+Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.services.image.Java2DLinearImageService)
+Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.services.image.Java2DBicubicImageService)
 Accumulated time for ImageJAndJava2D=295ms, average=295.0ms
 Testing and benchmarking image resizing for testImages/cg71_intranet_screenshot.tiff (1 loops each, resizing to 144x144 with resize type = ASPECT_FILL)...
 Accumulated time for Java2DLinear=0ms, average=0.0ms
@@ -213,39 +213,39 @@ Accumulated time for Java2DBicubic=0ms, average=0.0ms
 Accumulated time for Im4Java=146ms, average=146.0ms
 Using ImageJ code for file testImages/cg71_intranet_screenshot.tiff...
 Accumulated time for ImageJAndJava2D=278ms, average=278.0ms
-Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.application.Java2DLinearImageService)
+Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.services.image.Java2DLinearImageService)
 Testing and benchmarking image resizing for testImages/cg71_intranet_screenshot.tiff (1 loops each, resizing to 144x144 with resize type = ASPECT_FIT)...
-Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.application.Java2DBicubicImageService)
+Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.services.image.Java2DBicubicImageService)
 Accumulated time for Java2DLinear=1ms, average=1.0ms
 Accumulated time for Java2DBicubic=0ms, average=0.0ms
 Accumulated time for Im4Java=156ms, average=156.0ms
 Using ImageJ code for file testImages/cg71_intranet_screenshot.tiff...
 Accumulated time for ImageJAndJava2D=278ms, average=278.0ms
-Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.application.Java2DLinearImageService)
+Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.services.image.Java2DLinearImageService)
 Testing and benchmarking image cropping for testImages/cg71_intranet_screenshot.tiff (1 loops each, cropping from 10,10 to size 100x100)...
-Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.application.Java2DBicubicImageService)
+Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.services.image.Java2DBicubicImageService)
 Accumulated time for Java2DLinear=0ms, average=0.0ms
-Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.application.ThumnailatorImageService)
+Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.services.image.ThumnailatorImageService)
 Accumulated time for Java2DBicubic=1ms, average=1.0ms
-Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.application.ThumbnailatorHQImageService)
+Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.services.image.ThumbnailatorHQImageService)
 Accumulated time for Thumbnailator=0ms, average=0.0ms
 Accumulated time for ThumbnailatorHQ=0ms, average=0.0ms
 Accumulated time for Im4Java=90ms, average=90.0ms
 Using ImageJ code for file testImages/cg71_intranet_screenshot.tiff...
 Accumulated time for ImageJAndJava2D=182ms, average=182.0ms
-Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.application.Java2DLinearImageService)
+Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.services.image.Java2DLinearImageService)
 Testing and benchmarking image rotating for testImages/cg71_intranet_screenshot.tiff (1 loops each, rotating counter clockwise)...
-Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.application.Java2DLinearImageService)
+Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.services.image.Java2DLinearImageService)
 Accumulated time for Java2DLinear=0ms, average=0.0ms
-Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.application.Java2DBicubicImageService)
+Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.services.image.Java2DBicubicImageService)
 Accumulated time for Java2DBicubic=0ms, average=0.0ms
-Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.application.Java2DBicubicImageService)
+Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.services.image.Java2DBicubicImageService)
 Accumulated time for Thumbnailator=0ms, average=0.0ms
-Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.application.ThumnailatorImageService)
+Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.services.image.ThumnailatorImageService)
 Accumulated time for ThumbnailatorHQ=1ms, average=1.0ms
-Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.application.ThumnailatorImageService)
-Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.application.ThumbnailatorHQImageService)
-Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.application.ThumbnailatorHQImageService)
+Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.services.image.ThumnailatorImageService)
+Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.services.image.ThumbnailatorHQImageService)
+Image format for file testImages/cg71_intranet_screenshot.tiff is not supported by this implementation (org.jahia.services.image.ThumbnailatorHQImageService)
 Accumulated time for Im4Java=404ms, average=404.0ms
 Using ImageJ code for file testImages/cg71_intranet_screenshot.tiff...
 Using ImageJ code for file testImages/cg71_intranet_screenshot.tiff...
@@ -322,11 +322,11 @@ Accumulated time for ImageJAndJava2D=3ms, average=3.0ms
 Testing and benchmarking image rotating for testImages/logo.wbmp (1 loops each, rotating counter clockwise)...
 Accumulated time for Java2DLinear=4ms, average=4.0ms
 Accumulated time for Java2DBicubic=6ms, average=6.0ms
-Error while generating image for testImages/logo.wbmp: Only integral single-band bilevel image is supported.(org.jahia.application.ThumnailatorImageService)
-Error while generating image for testImages/logo.wbmp: Only integral single-band bilevel image is supported.(org.jahia.application.ThumnailatorImageService)
+Error while generating image for testImages/logo.wbmp: Only integral single-band bilevel image is supported.(org.jahia.services.image.ThumnailatorImageService)
+Error while generating image for testImages/logo.wbmp: Only integral single-band bilevel image is supported.(org.jahia.services.image.ThumnailatorImageService)
 Accumulated time for Thumbnailator=10ms, average=10.0ms
-Error while generating image for testImages/logo.wbmp: Only integral single-band bilevel image is supported.(org.jahia.application.ThumbnailatorHQImageService)
-Error while generating image for testImages/logo.wbmp: Only integral single-band bilevel image is supported.(org.jahia.application.ThumbnailatorHQImageService)
+Error while generating image for testImages/logo.wbmp: Only integral single-band bilevel image is supported.(org.jahia.services.image.ThumbnailatorHQImageService)
+Error while generating image for testImages/logo.wbmp: Only integral single-band bilevel image is supported.(org.jahia.services.image.ThumbnailatorHQImageService)
 Accumulated time for ThumbnailatorHQ=6ms, average=6.0ms
 Accumulated time for Im4Java=42ms, average=42.0ms
 Accumulated time for ImageJAndJava2D=4ms, average=4.0ms

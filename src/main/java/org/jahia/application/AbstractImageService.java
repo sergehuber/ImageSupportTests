@@ -7,11 +7,11 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Abstract class for common image operation methods
+ * Abstract class for common application operation methods
  */
-public abstract class AbstractJahiaImageService implements JahiaImageService {
+public abstract class AbstractImageService implements JahiaImageService {
 
-    private static final Logger logger = LoggerFactory.getLogger(AbstractJahiaImageService.class);
+    private static final Logger logger = LoggerFactory.getLogger(AbstractImageService.class);
 
     public class ResizeCoords {
         private int targetStartPosX, targetStartPosY, targetHeight, targetWidth,
@@ -102,10 +102,6 @@ public abstract class AbstractJahiaImageService implements JahiaImageService {
         return new ResizeCoords(resultTargetStartPosX, resultTargetStartPosY, resultTargetWidth, resultTargetHeight, resultSourceStartPosX, resultSourceStartPosY, resultSourceWidth, resultSourceHeight);
     }
 
-    public boolean resizeImage(Image i, File outputFile, int width, int height) throws IOException {
-        return resizeImage(i, outputFile, width, height, ResizeType.ADJUST_SIZE);
-    }
-
     public boolean createThumb(Image iw, File outputFile, int size, boolean square) throws IOException {
         try {
             if (square) {
@@ -114,13 +110,17 @@ public abstract class AbstractJahiaImageService implements JahiaImageService {
                 resizeImage(iw, outputFile, size, size, ResizeType.ADJUST_SIZE);
             }
         } catch (Exception e) {
-            logger.error("Error creating thumbnail of size "+size +" for image " + iw.getPath() + ":" + e.getLocalizedMessage());
+            logger.error("Error creating thumbnail of size "+size +" for application " + iw.getPath() + ":" + e.getLocalizedMessage());
             if (logger.isDebugEnabled()) {
-                logger.debug("Error creating thumbnail of size "+size +" for image " + iw.getPath(), e);
+                logger.debug("Error creating thumbnail of size "+size +" for application " + iw.getPath(), e);
             }
             return false;
         }
         return true;
+    }
+
+    public boolean resizeImage(Image i, File outputFile, int width, int height) throws IOException {
+        return resizeImage(i, outputFile, width, height, ResizeType.ADJUST_SIZE);
     }
 
 }

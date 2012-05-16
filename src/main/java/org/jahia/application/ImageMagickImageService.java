@@ -12,9 +12,9 @@ import java.io.IOException;
 import java.util.regex.Pattern;
 
 /**
- * Im4Java image operations implementation
+ * Im4Java application operations implementation
  */
-public class ImageMagickImageService extends AbstractJahiaImageService {
+public class ImageMagickImageService extends AbstractImageService {
 
     private static final Logger logger = LoggerFactory.getLogger(ImageMagickImageService.class);
 
@@ -51,10 +51,6 @@ public class ImageMagickImageService extends AbstractJahiaImageService {
         };
     }
 
-    private File getFile(Image i) {
-        return ((ImageMagickImage) i).getFile();
-    }
-
     public Image getImage(File sourceFile) {
         return new ImageMagickImage(sourceFile, sourceFile.getPath());
     }
@@ -65,9 +61,9 @@ public class ImageMagickImageService extends AbstractJahiaImageService {
             Info imageInfo = new Info(getFile(i).getPath());
             return Integer.parseInt(GEOMETRY_PATTERN.split(imageInfo.getProperty("Geometry"))[1]);
         } catch (InfoException e) {
-            logger.error("Error retrieving image " + imageMagickImage.getPath() + " height: " + e.getLocalizedMessage());
+            logger.error("Error retrieving application " + imageMagickImage.getPath() + " height: " + e.getLocalizedMessage());
             if (logger.isDebugEnabled()) {
-                logger.debug("Error retrieving image " + imageMagickImage.getPath() + " height", e);
+                logger.debug("Error retrieving application " + imageMagickImage.getPath() + " height", e);
             }
             return -1;
         }
@@ -79,45 +75,12 @@ public class ImageMagickImageService extends AbstractJahiaImageService {
             Info imageInfo = new Info(getFile(i).getPath());
             return Integer.parseInt(GEOMETRY_PATTERN.split(imageInfo.getProperty("Geometry"))[0]);
         } catch (InfoException e) {
-            logger.error("Error retrieving image " + imageMagickImage.getPath() + " weight: " + e.getLocalizedMessage());
+            logger.error("Error retrieving application " + imageMagickImage.getPath() + " weight: " + e.getLocalizedMessage());
             if (logger.isDebugEnabled()) {
-                logger.debug("Error retrieving image " + imageMagickImage.getPath() + " weight", e);
+                logger.debug("Error retrieving application " + imageMagickImage.getPath() + " weight", e);
             }
             return -1;
         }
-    }
-
-    public boolean resizeImage(Image image, File outputFile, int newWidth, int newHeight, AbstractJahiaImageService.ResizeType resizeType) throws IOException {
-
-        ProcessStarter.setGlobalSearchPath("/usr/bin:/usr/local/bin:/opt/local/bin");
-
-        // create command
-        ConvertCmd cmd = new ConvertCmd();
-
-        // create the operation, add images and operators/options
-        IMOperation op = new IMOperation();
-        op.addImage(image.getPath());
-
-        setupIMResize(op, newWidth, newHeight, resizeType);
-
-        op.addImage(outputFile.getPath());
-
-        try {
-            // logger.info("Running ImageMagic command: convert " + op);
-            cmd.run(op);
-            return true;
-        } catch (CommandException ce) {
-            if (ce.getCause() instanceof FileNotFoundException) {
-                logger.error("Seems ImageMagick is not available (" + ce.getLocalizedMessage() + ").");
-            } else {
-                logger.error("Error executing ImageMagick command", ce);
-            }
-        } catch (InterruptedException ie) {
-            logger.error("Error executing ImageMagick command", ie);
-        } catch (IM4JavaException ije) {
-            logger.error("Error executing ImageMagick command", ije);
-        }
-        return false;
     }
 
     public boolean cropImage(Image image, File outputFile, int left, int top, int width, int height) throws IOException {
@@ -160,22 +123,8 @@ public class ImageMagickImageService extends AbstractJahiaImageService {
         return true;
     }
 
-    private void setupIMResize(IMOperation op, int width, int height, ResizeType resizeType) {
-        if (ResizeType.ADJUST_SIZE.equals(resizeType)) {
-            op.resize(width,height);
-        } else if (ResizeType.ASPECT_FILL.equals(resizeType)) {
-            op.resize(width,height,"^");
-            op.gravity("center");
-            op.crop(width,height,0,0);
-            op.p_repage();
-        } else if (ResizeType.ASPECT_FIT.equals(resizeType)) {
-            op.resize(width,height);
-            op.gravity("center");
-            op.background("none");
-            op.extent(width,height);
-        } else {
-            op.resize(width,height,"!");
-        }
+    public boolean resizeImage(Image i, File outputFile, int width, int height, ResizeType resizeType) throws IOException {
+        return resizeImage(getFile(i), outputFile, width, height, resizeType);
     }
 
     public BufferedImage resizeImage(BufferedImage image, int width, int height,
@@ -198,11 +147,57 @@ public class ImageMagickImageService extends AbstractJahiaImageService {
         BufferedImage img = s2b.getImage();
             return img;
         } catch (Exception e) {
-            logger.error("Error resizing image : " + e.getLocalizedMessage());
+            logger.error("Error resizing application : " + e.getLocalizedMessage());
             if (logger.isDebugEnabled()) {
-                logger.debug("Error resizing image ", e);
+                logger.debug("Error resizing application ", e);
             }
             return null;
+        }
+    }
+
+    protected boolean resizeImage(File inputFile, File outputFile, int width, int height, ResizeType resizeType) throws IOException {
+        try {
+            // create command
+            ConvertCmd cmd = new ConvertCmd();
+
+            // create the operation, add images and operators/options
+            IMOperation op = new IMOperation();
+            op.addImage(inputFile.getPath());
+
+            setupIMResize(op, width, height, resizeType);
+
+            op.addImage(outputFile.getPath());
+
+            cmd.run(op);
+        } catch (Exception e) {
+            logger.error("Error resizing application " + inputFile + ": " + e.getLocalizedMessage());
+            if (logger.isDebugEnabled()) {
+                logger.debug("Error resizing application " + inputFile, e);
+            }
+            return false;
+        }
+        return true;
+    }
+
+    private File getFile(Image i) {
+        return ((ImageMagickImage) i).getFile();
+    }
+
+    private void setupIMResize(IMOperation op, int width, int height, ResizeType resizeType) {
+        if (ResizeType.ADJUST_SIZE.equals(resizeType)) {
+            op.resize(width,height);
+        } else if (ResizeType.ASPECT_FILL.equals(resizeType)) {
+            op.resize(width,height,"^");
+            op.gravity("center");
+            op.crop(width,height,0,0);
+            op.p_repage();
+        } else if (ResizeType.ASPECT_FIT.equals(resizeType)) {
+            op.resize(width,height);
+            op.gravity("center");
+            op.background("none");
+            op.extent(width,height);
+        } else {
+            op.resize(width,height,"!");
         }
     }
 

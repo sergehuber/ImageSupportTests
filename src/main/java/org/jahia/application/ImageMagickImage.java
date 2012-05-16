@@ -3,7 +3,7 @@ package org.jahia.application;
 import java.io.File;
 
 /**
- * ImageMagick image
+ * ImageMagick application
  */
 public class ImageMagickImage implements Image {
 

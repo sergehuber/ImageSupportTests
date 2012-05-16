@@ -25,9 +25,9 @@ import java.util.Hashtable;
 import java.util.Iterator;
 
 /**
- * Abstract Java2D common image operation implementations
+ * Abstract Java2D common application operation implementations
  */
-public abstract class AbstractJava2DImageService extends AbstractJahiaImageService {
+public abstract class AbstractJava2DImageService extends AbstractImageService {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractJava2DImageService.class);
 
@@ -55,7 +55,7 @@ public abstract class AbstractJava2DImageService extends AbstractJahiaImageServi
             logger.error("Image reading for file " + sourceFile + " is not supported by this implementation (" + this.getClass().getName() + ")");
             return null;
         }
-        // Read image to scale
+        // Read application to scale
         try {
             Metadata metadata = new Metadata();
             metadata.set(Metadata.RESOURCE_NAME_KEY, sourceFile.getName());
@@ -80,49 +80,14 @@ public abstract class AbstractJava2DImageService extends AbstractJahiaImageServi
         }
     }
 
-    public boolean resizeImage(Image image, File outputFile, int newWidth, int newHeight, AbstractJahiaImageService.ResizeType resizeType) throws IOException {
-
-        BufferedImage originalImage = ((BufferImage) image).getOriginalImage();
-
-        BufferedImage dest = resizeImage(originalImage, newWidth, newHeight, resizeType);
-
-        // Save destination image
-        saveImageToFile(dest, ((BufferImage)image).getMimeType(), outputFile);
-
-        return true;
+    public int getHeight(Image i) {
+        BufferImage bufferImage = ((BufferImage)i);
+        return bufferImage.getOriginalImage().getHeight();
     }
 
-    public BufferedImage resizeImage(BufferedImage image, int width, int newHeight, ResizeType resizeType) {
-        ResizeCoords resizeCoords = getResizeCoords(resizeType, image.getWidth(), image.getHeight(), width, newHeight);
-        if (ResizeType.ADJUST_SIZE.equals(resizeType)) {
-            width = resizeCoords.getTargetWidth();
-            newHeight = resizeCoords.getTargetHeight();
-        }
-
-        BufferedImage dest = getDestImage(width, newHeight, image);
-
-        // Paint source image into the destination, scaling as needed
-        Graphics2D graphics2D = getGraphics2D(dest, OperationType.RESIZE);
-
-        graphics2D.drawImage(image,
-                resizeCoords.getTargetStartPosX(), resizeCoords.getTargetStartPosY(),
-                resizeCoords.getTargetStartPosX() + resizeCoords.getTargetWidth(), resizeCoords.getTargetStartPosY() + resizeCoords.getTargetHeight(),
-                resizeCoords.getSourceStartPosX(), resizeCoords.getSourceStartPosY(),
-                resizeCoords.getSourceStartPosX() + resizeCoords.getSourceWidth(), resizeCoords.getSourceStartPosY() + resizeCoords.getSourceHeight(),
-                null);
-        graphics2D.dispose();
-        return dest;
-    }
-
-    protected BufferedImage getDestImage(int newWidth, int newHeight, BufferedImage originalImage) {
-        BufferedImage dest;
-        if (originalImage.getColorModel() instanceof IndexColorModel) {
-            // dest = new BufferedImage(newWidth, newHeight, originalImage.getType(), (IndexColorModel) originalImage.getColorModel());
-            dest = new BufferedImage(originalImage.getColorModel(), originalImage.getColorModel().createCompatibleWritableRaster(newWidth, newHeight), false, new Hashtable<Object, Object>());
-        } else {
-            dest = new BufferedImage(newWidth, newHeight, originalImage.getType());
-        }
-        return dest;
+    public int getWidth(Image i) {
+        BufferImage bufferImage = ((BufferImage)i);
+        return bufferImage.getOriginalImage().getWidth();
     }
 
     public boolean cropImage(Image image, File outputFile, int left, int top, int width, int height) throws IOException {
@@ -143,7 +108,7 @@ public abstract class AbstractJava2DImageService extends AbstractJahiaImageServi
                 top + clippingHeight, null);
         area.dispose();
 
-        // Save destination image
+        // Save destination application
         saveImageToFile(clipping, ((BufferImage)image).getMimeType(), outputFile);
 
         return true;
@@ -154,7 +119,7 @@ public abstract class AbstractJava2DImageService extends AbstractJahiaImageServi
         BufferedImage originalImage = ((BufferImage) image).getOriginalImage();
 
         BufferedImage dest = getDestImage(originalImage.getHeight(), originalImage.getWidth(), originalImage);
-        // Paint source image into the destination, scaling as needed
+        // Paint source application into the destination, scaling as needed
         Graphics2D graphics2D = getGraphics2D(dest, OperationType.ROTATE);
 
         double angle = Math.toRadians(clockwise ? 90 : -90);
@@ -170,19 +135,43 @@ public abstract class AbstractJava2DImageService extends AbstractJahiaImageServi
             graphics2D.drawImage(originalImage, 0, 0, null);
         }
 
-        // Save destination image
+        // Save destination application
         saveImageToFile(dest, ((BufferImage)image).getMimeType(), outputFile);
         return true;
     }
 
-    public int getHeight(Image i) {
-        BufferImage bufferImage = ((BufferImage)i);
-        return bufferImage.getOriginalImage().getHeight();
+    public boolean resizeImage(Image image, File outputFile, int newWidth, int newHeight, AbstractImageService.ResizeType resizeType) throws IOException {
+
+        BufferedImage originalImage = ((BufferImage) image).getOriginalImage();
+
+        BufferedImage dest = resizeImage(originalImage, newWidth, newHeight, resizeType);
+
+        // Save destination application
+        saveImageToFile(dest, ((BufferImage)image).getMimeType(), outputFile);
+
+        return true;
     }
 
-    public int getWidth(Image i) {
-        BufferImage bufferImage = ((BufferImage)i);
-        return bufferImage.getOriginalImage().getWidth();
+    public BufferedImage resizeImage(BufferedImage image, int width, int newHeight, ResizeType resizeType) {
+        ResizeCoords resizeCoords = getResizeCoords(resizeType, image.getWidth(), image.getHeight(), width, newHeight);
+        if (ResizeType.ADJUST_SIZE.equals(resizeType)) {
+            width = resizeCoords.getTargetWidth();
+            newHeight = resizeCoords.getTargetHeight();
+        }
+
+        BufferedImage dest = getDestImage(width, newHeight, image);
+
+        // Paint source application into the destination, scaling as needed
+        Graphics2D graphics2D = getGraphics2D(dest, OperationType.RESIZE);
+
+        graphics2D.drawImage(image,
+                resizeCoords.getTargetStartPosX(), resizeCoords.getTargetStartPosY(),
+                resizeCoords.getTargetStartPosX() + resizeCoords.getTargetWidth(), resizeCoords.getTargetStartPosY() + resizeCoords.getTargetHeight(),
+                resizeCoords.getSourceStartPosX(), resizeCoords.getSourceStartPosY(),
+                resizeCoords.getSourceStartPosX() + resizeCoords.getSourceWidth(), resizeCoords.getSourceStartPosY() + resizeCoords.getSourceHeight(),
+                null);
+        graphics2D.dispose();
+        return dest;
     }
 
     protected abstract Graphics2D getGraphics2D(BufferedImage bufferedImage, OperationType operationType);
@@ -195,6 +184,17 @@ public abstract class AbstractJava2DImageService extends AbstractJahiaImageServi
         } else {
             return false;
         }
+    }
+
+    protected BufferedImage getDestImage(int newWidth, int newHeight, BufferedImage originalImage) {
+        BufferedImage dest;
+        if (originalImage.getColorModel() instanceof IndexColorModel) {
+            // dest = new BufferedImage(newWidth, newHeight, originalImage.getType(), (IndexColorModel) originalImage.getColorModel());
+            dest = new BufferedImage(originalImage.getColorModel(), originalImage.getColorModel().createCompatibleWritableRaster(newWidth, newHeight), false, new Hashtable<Object, Object>());
+        } else {
+            dest = new BufferedImage(newWidth, newHeight, originalImage.getType());
+        }
+        return dest;
     }
 
     protected void saveImageToFile(BufferedImage dest, String mimeType, File destFile) throws IOException {

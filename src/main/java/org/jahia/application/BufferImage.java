@@ -3,7 +3,7 @@ package org.jahia.application;
 import java.awt.image.BufferedImage;
 
 /**
- * Simple image type to represent a buffered image
+ * Simple application type to represent a buffered application
  */
 public class BufferImage implements Image {
     private String path;

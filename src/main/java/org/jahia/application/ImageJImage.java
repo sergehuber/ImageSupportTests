@@ -3,7 +3,7 @@ package org.jahia.application;
 import ij.ImagePlus;
 
 /**
- * ImageJ and Java2D image
+ * ImageJ and Java2D application
  */
 public class ImageJImage implements Image {
     private String path;

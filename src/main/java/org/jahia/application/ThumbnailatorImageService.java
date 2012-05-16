@@ -18,9 +18,9 @@ import java.io.IOException;
 import java.util.Iterator;
 
 /**
- * Thumbnailator default image operation implementation
+ * Thumbnailator default application operation implementation
  */
-public class ThumbnailatorImageService extends AbstractJahiaImageService {
+public class ThumbnailatorImageService extends AbstractImageService {
 
     private static final Logger logger = LoggerFactory.getLogger(ThumbnailatorImageService.class);
 
@@ -95,7 +95,7 @@ public class ThumbnailatorImageService extends AbstractJahiaImageService {
         }
     }
 
-    public boolean resizeImage(Image image, File outputFile, int newWidth, int newHeight, AbstractJahiaImageService.ResizeType resizeType) throws IOException {
+    public boolean resizeImage(Image image, File outputFile, int newWidth, int newHeight, AbstractImageService.ResizeType resizeType) throws IOException {
         ImageMagickImage imageMagickImage = (ImageMagickImage) image;
         boolean conserveAspectRatio = true;
         if (ResizeType.SCALE_TO_FILL.equals(resizeType)) {
@@ -163,7 +163,7 @@ public class ThumbnailatorImageService extends AbstractJahiaImageService {
                         .asBufferedImage();
             }
         } catch (IOException ioe) {
-            logger.error("Error trying to resize image: " + ioe.getLocalizedMessage());
+            logger.error("Error trying to resize application: " + ioe.getLocalizedMessage());
             return null;
         }
         return resultImage;
@@ -195,7 +195,7 @@ public class ThumbnailatorImageService extends AbstractJahiaImageService {
                     .scale(1.0)
                     .toFile(outputFile);
         } catch (Exception e) {
-            logger.error("Error while generating image for " + imageMagickImage.getFile() + ": " + e.getLocalizedMessage() + "(" + this.getClass().getName() + ")");
+            logger.error("Error while generating application for " + imageMagickImage.getFile() + ": " + e.getLocalizedMessage() + "(" + this.getClass().getName() + ")");
             return false;
         }
         return true;

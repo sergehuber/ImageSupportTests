@@ -5,7 +5,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.IndexColorModel;
 
 /**
- * Java2D bicubic interpolation image operations implementation
+ * Java2D bicubic interpolation application operations implementation
  */
 public class Java2DBicubicImageService extends AbstractJava2DImageService {
 
@@ -14,7 +14,7 @@ public class Java2DBicubicImageService extends AbstractJava2DImageService {
     }
 
     protected Graphics2D getGraphics2D(BufferedImage dest, OperationType operationType) {
-        // Paint source image into the destination, scaling as needed
+        // Paint source application into the destination, scaling as needed
         Graphics2D graphics2D = dest.createGraphics();
         if (dest.getColorModel() instanceof IndexColorModel) {
             if (OperationType.RESIZE.equals(operationType)) {

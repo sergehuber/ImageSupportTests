@@ -4,7 +4,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 
 /**
- * Java2D linear interpolation image operation implementation
+ * Java2D linear interpolation application operation implementation
  */
 public class Java2DLinearImageService extends AbstractJava2DImageService {
 
@@ -13,7 +13,7 @@ public class Java2DLinearImageService extends AbstractJava2DImageService {
     }
 
     protected Graphics2D getGraphics2D(BufferedImage dest, OperationType operationType) {
-        // Paint source image into the destination, scaling as needed
+        // Paint source application into the destination, scaling as needed
         Graphics2D graphics2D = dest.createGraphics();
         if (OperationType.RESIZE.equals(operationType)) {
             graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION,

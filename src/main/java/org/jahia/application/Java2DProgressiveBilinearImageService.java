@@ -7,7 +7,7 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Progressive Bilinear implementation of the Java 2D image operation.
+ * Progressive Bilinear implementation of the Java 2D application operation.
  * <p/>
  * This algorithm comes from http://code.google.com/p/thumbnailator/, itself used from the
  * example code from the resizing technique
@@ -21,42 +21,6 @@ public class Java2DProgressiveBilinearImageService extends Java2DBicubicImageSer
         return "Java2DProgressiveBilinear";    //To change body of overridden methods use File | Settings | File Templates.
     }
 
-    protected Graphics2D getGraphics2D(BufferedImage dest, OperationType operationType) {
-        // Paint source image into the destination, scaling as needed
-        Graphics2D graphics2D = dest.createGraphics();
-        if (dest.getColorModel() instanceof IndexColorModel) {
-            if (OperationType.RESIZE.equals(operationType)) {
-                graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-                graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
-                graphics2D.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
-                graphics2D.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
-                graphics2D.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-                graphics2D.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_DISABLE);
-            }
-            graphics2D.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC));
-            IndexColorModel indexColorModel = (IndexColorModel) dest.getColorModel();
-            int transparentPixelIndex = indexColorModel.getTransparentPixel();
-            if (transparentPixelIndex > -1) {
-                int transparentRGB = indexColorModel.getRGB(transparentPixelIndex);
-                Color transparentColor = new Color(transparentRGB, true);
-                graphics2D.setBackground(transparentColor);
-                graphics2D.setColor(transparentColor);
-                graphics2D.setPaint(transparentColor);
-                graphics2D.fillRect(0, 0, dest.getWidth(), dest.getHeight());
-            }
-        } else {
-            if (OperationType.RESIZE.equals(operationType)) {
-                graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-                graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                graphics2D.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
-                graphics2D.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
-                graphics2D.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-                graphics2D.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_DEFAULT);
-            }
-        }
-        return graphics2D;
-    }
-
     @Override
     public boolean resizeImage(Image image, File outputFile, int newWidth, int newHeight, ResizeType resizeType) throws IOException {
 
@@ -67,7 +31,7 @@ public class Java2DProgressiveBilinearImageService extends Java2DBicubicImageSer
             return false;
         }
 
-        // Save destination image
+        // Save destination application
         saveImageToFile(dest, ((BufferImage) image).getMimeType(), outputFile);
         return true;
     }
@@ -87,7 +51,7 @@ public class Java2DProgressiveBilinearImageService extends Java2DBicubicImageSer
 
         BufferedImage dest = getDestImage(width, height, image);
 
-        // Paint source image into the destination, scaling as needed
+        // Paint source application into the destination, scaling as needed
         Graphics2D graphics2D = getGraphics2D(dest, OperationType.RESIZE);
 
         // If multi-step downscaling is not required, perform one-step.
@@ -99,11 +63,11 @@ public class Java2DProgressiveBilinearImageService extends Java2DBicubicImageSer
                     resizeCoords.getSourceStartPosX() + resizeCoords.getSourceWidth(), resizeCoords.getSourceStartPosY() + resizeCoords.getSourceHeight(),
                     null);
             graphics2D.dispose();
-            // Save destination image
+            // Save destination application
             return dest;
         }
 
-        // Temporary image used for in-place resizing of image.
+        // Temporary application used for in-place resizing of application.
         BufferedImage tempImage = new BufferedImage(
                 currentWidth,
                 currentHeight,
@@ -158,7 +122,7 @@ public class Java2DProgressiveBilinearImageService extends Java2DBicubicImageSer
 
         g.dispose();
 
-        // Draw the resized image onto the destination image.
+        // Draw the resized application onto the destination application.
         graphics2D.drawImage(tempImage,
                 resizeCoords.getTargetStartPosX(),
                 resizeCoords.getTargetStartPosY(), resizeCoords.getTargetStartPosX() + targetWidth, resizeCoords.getTargetStartPosY() + targetHeight, 0, 0, currentWidth, currentHeight, null);
@@ -166,4 +130,41 @@ public class Java2DProgressiveBilinearImageService extends Java2DBicubicImageSer
 
         return dest;
     }
+
+    protected Graphics2D getGraphics2D(BufferedImage dest, OperationType operationType) {
+        // Paint source application into the destination, scaling as needed
+        Graphics2D graphics2D = dest.createGraphics();
+        if (dest.getColorModel() instanceof IndexColorModel) {
+            if (OperationType.RESIZE.equals(operationType)) {
+                graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+                graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+                graphics2D.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+                graphics2D.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
+                graphics2D.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+                graphics2D.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_DISABLE);
+            }
+            graphics2D.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC));
+            IndexColorModel indexColorModel = (IndexColorModel) dest.getColorModel();
+            int transparentPixelIndex = indexColorModel.getTransparentPixel();
+            if (transparentPixelIndex > -1) {
+                int transparentRGB = indexColorModel.getRGB(transparentPixelIndex);
+                Color transparentColor = new Color(transparentRGB, true);
+                graphics2D.setBackground(transparentColor);
+                graphics2D.setColor(transparentColor);
+                graphics2D.setPaint(transparentColor);
+                graphics2D.fillRect(0, 0, dest.getWidth(), dest.getHeight());
+            }
+        } else {
+            if (OperationType.RESIZE.equals(operationType)) {
+                graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                graphics2D.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+                graphics2D.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
+                graphics2D.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+                graphics2D.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_DEFAULT);
+            }
+        }
+        return graphics2D;
+    }
+
 }

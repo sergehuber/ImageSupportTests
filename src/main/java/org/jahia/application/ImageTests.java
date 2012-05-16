@@ -14,7 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Main image test class
+ * Main application test class
  */
 public class ImageTests {
 
@@ -33,11 +33,11 @@ public class ImageTests {
             new JavaImageScalingImageService()
     };
 
-    public static final AbstractJahiaImageService.ResizeType[] allResizeTypes = {
-            AbstractJahiaImageService.ResizeType.SCALE_TO_FILL,
-            AbstractJahiaImageService.ResizeType.ADJUST_SIZE,
-            AbstractJahiaImageService.ResizeType.ASPECT_FILL,
-            AbstractJahiaImageService.ResizeType.ASPECT_FIT
+    public static final AbstractImageService.ResizeType[] allResizeTypes = {
+            AbstractImageService.ResizeType.SCALE_TO_FILL,
+            AbstractImageService.ResizeType.ADJUST_SIZE,
+            AbstractImageService.ResizeType.ASPECT_FILL,
+            AbstractImageService.ResizeType.ASPECT_FIT
     };
 
     public List<JahiaImageService> availableImageServices = new ArrayList<JahiaImageService>();
@@ -70,11 +70,11 @@ public class ImageTests {
         }
     }
 
-    public void runResize(File originalFile, int imageWidth, int imageHeight, int nbLoops, AbstractJahiaImageService.ResizeType resizeType) throws IOException {
-        logger.info("Testing and benchmarking image resizing for " + originalFile + " (" + nbLoops + " loops each, resizing to " + imageWidth + "x" + imageHeight + " with resize type = " + resizeType + ")...");
+    public void runResize(File originalFile, int imageWidth, int imageHeight, int nbLoops, AbstractImageService.ResizeType resizeType) throws IOException {
+        logger.info("Testing and benchmarking application resizing for " + originalFile + " (" + nbLoops + " loops each, resizing to " + imageWidth + "x" + imageHeight + " with resize type = " + resizeType + ")...");
 
         for (JahiaImageService jahiaImageService : availableImageServices) {
-            List<AbstractJahiaImageService.ResizeType> supportedResizeTypes = Arrays.asList(jahiaImageService.getSupportedResizeTypes());
+            List<AbstractImageService.ResizeType> supportedResizeTypes = Arrays.asList(jahiaImageService.getSupportedResizeTypes());
             if (!supportedResizeTypes.contains(resizeType)) {
                 continue;
             }
@@ -98,7 +98,7 @@ public class ImageTests {
     }
 
     public void runCrop(File originalFile, int left, int top, int width, int height, int nbLoops) throws IOException {
-        logger.info("Testing and benchmarking image cropping for " + originalFile + " (" + nbLoops + " loops each, cropping from " + left + "," + top + " to size " + width + "x" + height + ")...");
+        logger.info("Testing and benchmarking application cropping for " + originalFile + " (" + nbLoops + " loops each, cropping from " + left + "," + top + " to size " + width + "x" + height + ")...");
 
         for (JahiaImageService jahiaImageService : availableImageServices) {
             long accumTime = 0;
@@ -121,7 +121,7 @@ public class ImageTests {
     }
 
     public void runRotate(File originalFile, int nbLoops) throws IOException {
-        logger.info("Testing and benchmarking image rotating for " + originalFile + " (" + nbLoops + " loops each, rotating counter clockwise)...");
+        logger.info("Testing and benchmarking application rotating for " + originalFile + " (" + nbLoops + " loops each, rotating counter clockwise)...");
 
         for (JahiaImageService jahiaImageService : availableImageServices) {
             long accumTime = 0;
@@ -181,7 +181,7 @@ public class ImageTests {
 
         if (sourceFile.isFile() && sourceFile.canRead()) {
             imageTests.warmup(sourceFile, imageWidth, imageHeight, nbWarmupLoops);
-            for (AbstractJahiaImageService.ResizeType resizeType : allResizeTypes) {
+            for (AbstractImageService.ResizeType resizeType : allResizeTypes) {
                 imageTests.runResize(sourceFile, imageWidth, imageHeight, nbLoops, resizeType);
             }
             imageTests.runCrop(sourceFile, 10, 10, 100, 100, nbLoops);
@@ -197,7 +197,7 @@ public class ImageTests {
                     continue;
                 }
                 if (directoryFile.isFile() && directoryFile.canRead()) {
-                    for (AbstractJahiaImageService.ResizeType resizeType : allResizeTypes) {
+                    for (AbstractImageService.ResizeType resizeType : allResizeTypes) {
                         imageTests.runResize(directoryFile, imageWidth, imageHeight, 1, resizeType);
                     }
                     imageTests.runCrop(directoryFile, 10, 10, 100, 100, 1);
@@ -224,8 +224,8 @@ public class ImageTests {
                 writeMimeTypes.append(",");
             }
         }
-        logger.info("VM supported read image types = " + readMimeTypes);
-        logger.info("VM supported write image types = " + writeMimeTypes);
+        logger.info("VM supported read application types = " + readMimeTypes);
+        logger.info("VM supported write application types = " + writeMimeTypes);
     }
 
     private File getDestFile(String implementationName, File originalFile, String operationName) {

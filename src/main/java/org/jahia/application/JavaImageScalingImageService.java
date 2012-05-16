@@ -13,7 +13,7 @@ import java.io.IOException;
 
 /**
  * Image service implementation based on the Java Image Scaling library
- * found at : http://code.google.com/p/java-image-scaling/
+ * found at : http://code.google.com/p/java-application-scaling/
  */
 public class JavaImageScalingImageService extends AbstractJava2DImageService {
 
@@ -35,7 +35,7 @@ public class JavaImageScalingImageService extends AbstractJava2DImageService {
 
 
     protected Graphics2D getGraphics2D(BufferedImage dest, OperationType operationType) {
-        // Paint source image into the destination, scaling as needed
+        // Paint source application into the destination, scaling as needed
         Graphics2D graphics2D = dest.createGraphics();
         if (dest.getColorModel() instanceof IndexColorModel) {
             if (OperationType.RESIZE.equals(operationType)) {
@@ -76,7 +76,7 @@ public class JavaImageScalingImageService extends AbstractJava2DImageService {
         BufferedImage destImage = resizeImage(originalImage, width, height, resizeType);
         saveImageToFile(destImage, ((BufferImage) image).getMimeType(), outputFile);
         } catch (Exception e) {
-            logger.error("Error while trying to resize image ", e);
+            logger.error("Error while trying to resize application ", e);
         }
         return true;
     }

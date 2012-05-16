@@ -15,9 +15,9 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * ImageJ image operation implementation
+ * ImageJ application operation implementation
  */
-public class ImageJImageService extends AbstractJahiaImageService {
+public class ImageJImageService extends AbstractImageService {
 
     private static final Logger logger = LoggerFactory.getLogger(ImageJImageService.class);
 
@@ -50,44 +50,20 @@ public class ImageJImageService extends AbstractJahiaImageService {
         return new ImageJImage(sourceFile.getPath(), ip, fileType);
     }
 
-    public boolean resizeImage(Image image, File outputFile, int newWidth, int newHeight, ResizeType resizeType) throws IOException {
-
-        ImageJImage imageJImage = (ImageJImage) image;
-        ImagePlus ip = imageJImage.getImagePlus();
-
-        ImageProcessor processor = ip.getProcessor();
-
-        int originalWidth = ip.getWidth();
-        int originalHeight = ip.getHeight();
-        ResizeCoords resizeCoords = getResizeCoords(resizeType, originalWidth, originalHeight, newWidth, newHeight);
-
-        if (ResizeType.SCALE_TO_FILL.equals(resizeType)) {
-            processor.setInterpolationMethod(ImageProcessor.BICUBIC);
-            processor = processor.resize(newWidth, newHeight, true);
-        } else if (ResizeType.ADJUST_SIZE.equals(resizeType)) {
-            newWidth = resizeCoords.getTargetWidth();
-            newHeight = resizeCoords.getTargetHeight();
-            processor.setInterpolationMethod(ImageProcessor.BICUBIC);
-            processor = processor.resize(newWidth, newHeight, true);
-        } else if (ResizeType.ASPECT_FILL.equals(resizeType)) {
-            processor.setRoi(resizeCoords.getSourceStartPosX(), resizeCoords.getSourceStartPosY(), resizeCoords.getSourceWidth(), resizeCoords.getSourceHeight());
-            processor = processor.crop();
-            processor.setInterpolationMethod(ImageProcessor.BICUBIC);
-            processor = processor.resize(resizeCoords.getTargetWidth(), resizeCoords.getTargetHeight(), true);
-        } else if (ResizeType.ASPECT_FIT.equals(resizeType)) {
-            processor.setInterpolationMethod(ImageProcessor.BICUBIC);
-            processor = processor.resize(resizeCoords.getTargetWidth(), resizeCoords.getTargetHeight(), true);
-            ImageProcessor newProcessor = processor.createProcessor(newWidth, newHeight);
-            newProcessor.copyBits(processor, resizeCoords.getTargetStartPosX(), resizeCoords.getTargetStartPosY(), Blitter.ADD);
-            processor = newProcessor;
+    public int getHeight(Image i) {
+        ImagePlus ip = ((ImageJImage)i).getImagePlus();
+        if (ip != null) {
+            return ip.getHeight();
         }
-        ip.setProcessor(null, processor);
-
-        return save(imageJImage.getImageType(), ip, outputFile);
+        return -1;
     }
 
-    public BufferedImage resizeImage(BufferedImage image, int width, int height, ResizeType resizeType) throws IOException {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    public int getWidth(Image i) {
+        ImagePlus ip = ((ImageJImage)i).getImagePlus();
+        if (ip != null) {
+            return ip.getWidth();
+        }
+        return -1;
     }
 
     public boolean cropImage(Image image, File outputFile, int left, int top, int width, int height) throws IOException {
@@ -119,6 +95,56 @@ public class ImageJImageService extends AbstractJahiaImageService {
 
         return save(imageJImage.getImageType(), ip, outputFile);
 
+    }
+
+    public boolean resizeImage(Image i, File outputFile, int width, int height, ResizeType resizeType) throws IOException {
+
+        ImageJImage imageJImage = (ImageJImage) i;
+
+        ImagePlus ip = imageJImage.getImagePlus();
+
+        resizeImage(ip, width, height, resizeType);
+
+        return save(imageJImage.getImageType(), ip, outputFile);
+    }
+
+    public BufferedImage resizeImage(BufferedImage image, int width, int height,
+            ResizeType resizeType) throws IOException {
+        ImagePlus ip = new ImagePlus(null, image);
+
+        resizeImage(ip, width, height, resizeType);
+
+        return ip.getBufferedImage();
+    }
+
+    protected void resizeImage(ImagePlus ip, int width, int height, ResizeType resizeType) throws IOException {
+        ImageProcessor processor = ip.getProcessor();
+
+        int originalWidth = ip.getWidth();
+        int originalHeight = ip.getHeight();
+        ResizeCoords resizeCoords = getResizeCoords(resizeType, originalWidth, originalHeight, width, height);
+
+        if (ResizeType.SCALE_TO_FILL.equals(resizeType)) {
+            processor.setInterpolationMethod(ImageProcessor.BICUBIC);
+            processor = processor.resize(width, height, true);
+        } else if (ResizeType.ADJUST_SIZE.equals(resizeType)) {
+            width = resizeCoords.getTargetWidth();
+            height = resizeCoords.getTargetHeight();
+            processor.setInterpolationMethod(ImageProcessor.BICUBIC);
+            processor = processor.resize(width, height, true);
+        } else if (ResizeType.ASPECT_FILL.equals(resizeType)) {
+            processor.setRoi(resizeCoords.getSourceStartPosX(), resizeCoords.getSourceStartPosY(), resizeCoords.getSourceWidth(), resizeCoords.getSourceHeight());
+            processor = processor.crop();
+            processor.setInterpolationMethod(ImageProcessor.BICUBIC);
+            processor = processor.resize(resizeCoords.getTargetWidth(), resizeCoords.getTargetHeight(), true);
+        } else if (ResizeType.ASPECT_FIT.equals(resizeType)) {
+            processor.setInterpolationMethod(ImageProcessor.BICUBIC);
+            processor = processor.resize(resizeCoords.getTargetWidth(), resizeCoords.getTargetHeight(), true);
+            ImageProcessor newProcessor = processor.createProcessor(width, height);
+            newProcessor.copyBits(processor, resizeCoords.getTargetStartPosX(), resizeCoords.getTargetStartPosY(), Blitter.ADD);
+            processor = newProcessor;
+        }
+        ip.setProcessor(null, processor);
     }
 
     public static boolean save(int type, ImagePlus ip, File outputFile) {
@@ -153,22 +179,6 @@ public class ImageJImageService extends AbstractJahiaImageService {
                 return new FileSaver(ip).saveAsPgm(outputFile.getPath());
         }
         return false;
-    }
-
-    public int getHeight(Image i) {
-        ImagePlus ip = ((ImageJImage)i).getImagePlus();
-        if (ip != null) {
-            return ip.getHeight();
-        }
-        return -1;
-    }
-
-    public int getWidth(Image i) {
-        ImagePlus ip = ((ImageJImage)i).getImagePlus();
-        if (ip != null) {
-            return ip.getWidth();
-        }
-        return -1;
     }
 
 }

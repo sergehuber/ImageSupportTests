@@ -46,20 +46,6 @@ public class ImageJAndJava2DImageService extends Java2DProgressiveBilinearImageS
     }
 
     @Override
-    public boolean resizeImage(Image image, File outputFile, int newWidth, int newHeight, ResizeType resizeType) throws IOException {
-        if (image instanceof BufferImage) {
-            return super.resizeImage(image, outputFile, newWidth, newHeight, resizeType);    //To change body of overridden methods use File | Settings | File Templates.
-        } else {
-            logger.info("Using ImageJ code for file " + image.getPath() + "...");
-            return imageJImageOperation.resizeImage(image, outputFile, newWidth, newHeight, resizeType);
-        }
-    }
-
-    public BufferedImage resizeImage(BufferedImage image, int width, int height, ResizeType resizeType) {
-        return super.resizeImage(image, width, height, resizeType);
-    }
-
-    @Override
     public boolean cropImage(Image image, File outputFile, int left, int top, int width, int height) throws IOException {
         if (image instanceof BufferImage) {
             return super.cropImage(image, outputFile, left, top, width, height);    //To change body of overridden methods use File | Settings | File Templates.
@@ -78,5 +64,20 @@ public class ImageJAndJava2DImageService extends Java2DProgressiveBilinearImageS
             return imageJImageOperation.rotateImage(image, outputFile, clockwise);
         }
     }
+
+    @Override
+    public boolean resizeImage(Image image, File outputFile, int newWidth, int newHeight, ResizeType resizeType) throws IOException {
+        if (image instanceof BufferImage) {
+            return super.resizeImage(image, outputFile, newWidth, newHeight, resizeType);    //To change body of overridden methods use File | Settings | File Templates.
+        } else {
+            logger.info("Using ImageJ code for file " + image.getPath() + "...");
+            return imageJImageOperation.resizeImage(image, outputFile, newWidth, newHeight, resizeType);
+        }
+    }
+
+    public BufferedImage resizeImage(BufferedImage image, int width, int height, ResizeType resizeType) {
+        return super.resizeImage(image, width, height, resizeType);
+    }
+
 
 }
