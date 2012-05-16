@@ -1,4 +1,4 @@
-package org.jahia.application;
+package org.jahia.services.image;
 
 import org.im4java.core.*;
 import org.im4java.process.ProcessStarter;

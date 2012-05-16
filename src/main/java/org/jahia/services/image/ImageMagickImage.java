@@ -1,4 +1,4 @@
-package org.jahia.application;
+package org.jahia.services.image;
 
 import java.io.File;
 

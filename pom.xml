@@ -84,7 +84,7 @@
             <configuration>
                 <archive>
                     <manifest>
-                        <mainClass>org.jahia.application.ImageTests</mainClass>
+                        <mainClass>org.jahia.services.image.ImageTests</mainClass>
                     </manifest>
                 </archive>
                 <descriptorRefs>

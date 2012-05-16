@@ -1,4 +1,4 @@
-package org.jahia.application;
+package org.jahia.services.image;
 
 import com.mortennobel.imagescaling.AdvancedResizeOp;
 import com.mortennobel.imagescaling.ResampleOp;
@@ -70,7 +70,7 @@ public class JavaImageScalingImageService extends AbstractJava2DImageService {
         return graphics2D;
     }
 
-    public boolean resizeImage(Image image, File outputFile, int width, int height, ResizeType resizeType) throws IOException {
+    public boolean resizeImage(org.jahia.services.image.Image image, File outputFile, int width, int height, ResizeType resizeType) throws IOException {
         try {
         BufferedImage originalImage = ((BufferImage) image).getOriginalImage();
         BufferedImage destImage = resizeImage(originalImage, width, height, resizeType);

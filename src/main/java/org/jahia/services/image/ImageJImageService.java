@@ -1,4 +1,4 @@
-package org.jahia.application;
+package org.jahia.services.image;
 
 import ij.ImagePlus;
 import ij.WindowManager;

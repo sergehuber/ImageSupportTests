@@ -1,4 +1,4 @@
-package org.jahia.application;
+package org.jahia.services.image;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -22,7 +22,7 @@ public class Java2DProgressiveBilinearImageService extends Java2DBicubicImageSer
     }
 
     @Override
-    public boolean resizeImage(Image image, File outputFile, int newWidth, int newHeight, ResizeType resizeType) throws IOException {
+    public boolean resizeImage(org.jahia.services.image.Image image, File outputFile, int newWidth, int newHeight, ResizeType resizeType) throws IOException {
 
         BufferedImage originalImage = ((BufferImage) image).getOriginalImage();
 

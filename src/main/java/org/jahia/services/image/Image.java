@@ -1,4 +1,4 @@
-package org.jahia.application;
+package org.jahia.services.image;
 
 /**
  * Common interface for all application implementations

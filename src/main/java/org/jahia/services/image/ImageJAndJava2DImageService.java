@@ -1,4 +1,4 @@
-package org.jahia.application;
+package org.jahia.services.image;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

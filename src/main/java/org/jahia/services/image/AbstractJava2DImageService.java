@@ -1,4 +1,4 @@
-package org.jahia.application;
+package org.jahia.services.image;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;

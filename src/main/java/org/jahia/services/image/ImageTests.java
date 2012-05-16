@@ -1,4 +1,4 @@
-package org.jahia.application;
+package org.jahia.services.image;
 
 import net.coobird.thumbnailator.resizers.Resizers;
 import org.apache.commons.io.FilenameUtils;
