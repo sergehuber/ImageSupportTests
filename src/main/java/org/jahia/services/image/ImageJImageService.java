@@ -62,6 +62,24 @@ public class ImageJImageService extends AbstractImageService {
 
     private static final Logger logger = LoggerFactory.getLogger(ImageJImageService.class);
 
+    protected ImageJImageService() {
+        super();
+    }
+
+    public void init() {
+    }
+
+    public static ImageJImageService getInstance() {
+        if (instance == null) {
+            synchronized (ImageJImageService.class) {
+                if (instance == null) {
+                    instance = new ImageJImageService();
+                }
+            }
+        }
+        return instance;
+    }
+
     public String getImplementationName() {
         return "ImageJ";
     }

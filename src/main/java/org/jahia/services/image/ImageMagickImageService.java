@@ -61,6 +61,31 @@ public class ImageMagickImageService extends AbstractImageService {
     
     private static final Pattern GEOMETRY_PATTERN = Pattern.compile("[x+]");
 
+    private static ImageMagickImageService instance;
+
+    private String imageMagickPath;
+
+    protected ImageMagickImageService() {
+
+    }
+
+    public void init() {
+        ProcessStarter.setGlobalSearchPath(imageMagickPath);
+    }
+
+    public static ImageMagickImageService getInstance() {
+        if (instance == null) {
+            synchronized (ImageMagickImageService.class) {
+                instance = new ImageMagickImageService();
+            }
+        }
+        return instance;
+    }
+
+    public void setImageMagickPath(String imageMagickPath) {
+        this.imageMagickPath = imageMagickPath;
+    }
+
     public String getImplementationName() {
         return "Im4Java";
     }

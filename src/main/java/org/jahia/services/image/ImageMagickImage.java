@@ -43,7 +43,7 @@ package org.jahia.services.image;
 import java.io.File;
 
 /**
- * ImageMagick application
+ * ImageMagick image
  */
 public class ImageMagickImage implements Image {
 
@@ -63,4 +63,4 @@ public class ImageMagickImage implements Image {
         return file;
     }
 
-    }
+}

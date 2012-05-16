@@ -18,10 +18,6 @@ public class ImageJAndJava2DImageService extends Java2DProgressiveBilinearImageS
 
     private static final Logger logger = LoggerFactory.getLogger(ImageJAndJava2DImageService.class);
 
-    public String getImplementationName() {
-        return "ImageJAndJava2D";
-    }
-
     protected ImageJAndJava2DImageService() {
     }
 
@@ -30,6 +26,10 @@ public class ImageJAndJava2DImageService extends Java2DProgressiveBilinearImageS
 
     public static ImageJAndJava2DImageService getInstance() {
         return instance;
+    }
+
+    public String getImplementationName() {
+        return "ImageJAndJava2D";
     }
 
     @Override
@@ -61,10 +61,10 @@ public class ImageJAndJava2DImageService extends Java2DProgressiveBilinearImageS
     @Override
     public boolean cropImage(Image image, File outputFile, int top, int left, int width, int height) throws IOException {
         if (image instanceof BufferImage) {
-            return super.cropImage(image, outputFile, left, top, width, height);    //To change body of overridden methods use File | Settings | File Templates.
+            return super.cropImage(image, outputFile, top, left, width, height);    //To change body of overridden methods use File | Settings | File Templates.
         } else {
             logger.info("Using ImageJ code for file " + image.getPath() + "...");
-            return imageJImageService.cropImage(image, outputFile, left, top, width, height);
+            return imageJImageService.cropImage(image, outputFile, top, left, width, height);
         }
     }
 

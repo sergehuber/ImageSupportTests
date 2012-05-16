@@ -43,7 +43,7 @@ package org.jahia.services.image;
 import ij.ImagePlus;
 
 /**
- * ImageJ and Java2D application
+ * ImageJ image
 */
 public class ImageJImage implements Image {
     private String path;
