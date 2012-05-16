@@ -50,6 +50,7 @@ public class ImageJAndJava2DImageService extends Java2DProgressiveBilinearImageS
         }
     }
 
+    @Override
     public int getHeight(Image i) {
         if (i instanceof BufferImage) {
             return super.getHeight(i);
@@ -70,7 +71,7 @@ public class ImageJAndJava2DImageService extends Java2DProgressiveBilinearImageS
     @Override
     public boolean cropImage(Image image, File outputFile, int top, int left, int width, int height) throws IOException {
         if (image instanceof BufferImage) {
-            return super.cropImage(image, outputFile, top, left, width, height);    //To change body of overridden methods use File | Settings | File Templates.
+            return super.cropImage(image, outputFile, top, left, width, height);
         } else {
             logger.info("Using ImageJ code for file " + image.getPath() + "...");
             return imageJImageService.cropImage(image, outputFile, top, left, width, height);
@@ -80,7 +81,7 @@ public class ImageJAndJava2DImageService extends Java2DProgressiveBilinearImageS
     @Override
     public boolean rotateImage(Image image, File outputFile, boolean clockwise) throws IOException {
         if (image instanceof BufferImage) {
-            return super.rotateImage(image, outputFile, clockwise);    //To change body of overridden methods use File | Settings | File Templates.
+            return super.rotateImage(image, outputFile, clockwise);
         } else {
             logger.info("Using ImageJ code for file " + image.getPath() + "...");
             return imageJImageService.rotateImage(image, outputFile, clockwise);
@@ -90,7 +91,7 @@ public class ImageJAndJava2DImageService extends Java2DProgressiveBilinearImageS
     @Override
     public boolean resizeImage(Image image, File outputFile, int newWidth, int newHeight, ResizeType resizeType) throws IOException {
         if (image instanceof BufferImage) {
-            return super.resizeImage(image, outputFile, newWidth, newHeight, resizeType);    //To change body of overridden methods use File | Settings | File Templates.
+            return super.resizeImage(image, outputFile, newWidth, newHeight, resizeType);
         } else {
             logger.info("Using ImageJ code for file " + image.getPath() + "...");
             return imageJImageService.resizeImage(image, outputFile, newWidth, newHeight, resizeType);
