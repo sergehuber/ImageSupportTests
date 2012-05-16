@@ -41,6 +41,15 @@ public class ImageJAndJava2DImageService extends Java2DProgressiveBilinearImageS
         }
     }
 
+    @Override
+    public boolean createThumb(Image iw, File outputFile, int size, boolean square) throws IOException {
+        if (iw instanceof BufferImage) {
+            return super.createThumb(iw, outputFile, size, square);
+        } else {
+            return imageJImageService.createThumb(iw, outputFile, size, square);
+        }
+    }
+
     public int getHeight(Image i) {
         if (i instanceof BufferImage) {
             return super.getHeight(i);
