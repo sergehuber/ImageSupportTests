@@ -1,3 +1,43 @@
+/**
+ * This file is part of Jahia, next-generation open source CMS:
+ * Jahia's next-generation, open source CMS stems from a widely acknowledged vision
+ * of enterprise application convergence - web, search, document, social and portal -
+ * unified by the simplicity of web content management.
+ *
+ * For more information, please visit http://www.jahia.com.
+ *
+ * Copyright (C) 2002-2012 Jahia Solutions Group SA. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ *
+ * As a special exception to the terms and conditions of version 2.0 of
+ * the GPL (or any later version), you may redistribute this Program in connection
+ * with Free/Libre and Open Source Software ("FLOSS") applications as described
+ * in Jahia's FLOSS exception. You should have received a copy of the text
+ * describing the FLOSS exception, and it is also available here:
+ * http://www.jahia.com/license
+ *
+ * Commercial and Supported Versions of the program (dual licensing):
+ * alternatively, commercial and supported versions of the program may be used
+ * in accordance with the terms and conditions contained in a separate
+ * written agreement between you and Jahia Solutions Group SA.
+ *
+ * If you are unsure which license is appropriate for your use,
+ * please contact the sales department at sales@jahia.com.
+ */
+
 package org.jahia.services.image;
 
 import org.im4java.core.*;
@@ -12,12 +52,13 @@ import java.io.IOException;
 import java.util.regex.Pattern;
 
 /**
- * Im4Java application operations implementation
+ * An image service implementation that uses the external ImageMagick command line tool to
+ * perform high-quality image manipulation for a wide variety of image formats.
  */
 public class ImageMagickImageService extends AbstractImageService {
-
+    
     private static final Logger logger = LoggerFactory.getLogger(ImageMagickImageService.class);
-
+    
     private static final Pattern GEOMETRY_PATTERN = Pattern.compile("[x+]");
 
     public String getImplementationName() {
@@ -61,9 +102,9 @@ public class ImageMagickImageService extends AbstractImageService {
             Info imageInfo = new Info(getFile(i).getPath());
             return Integer.parseInt(GEOMETRY_PATTERN.split(imageInfo.getProperty("Geometry"))[1]);
         } catch (InfoException e) {
-            logger.error("Error retrieving application " + imageMagickImage.getPath() + " height: " + e.getLocalizedMessage());
+            logger.error("Error retrieving image " + imageMagickImage.getPath() + " height: " + e.getLocalizedMessage());
             if (logger.isDebugEnabled()) {
-                logger.debug("Error retrieving application " + imageMagickImage.getPath() + " height", e);
+                logger.debug("Error retrieving image " + imageMagickImage.getPath() + " height", e);
             }
             return -1;
         }
@@ -75,22 +116,22 @@ public class ImageMagickImageService extends AbstractImageService {
             Info imageInfo = new Info(getFile(i).getPath());
             return Integer.parseInt(GEOMETRY_PATTERN.split(imageInfo.getProperty("Geometry"))[0]);
         } catch (InfoException e) {
-            logger.error("Error retrieving application " + imageMagickImage.getPath() + " weight: " + e.getLocalizedMessage());
+            logger.error("Error retrieving image " + imageMagickImage.getPath() + " weight: " + e.getLocalizedMessage());
             if (logger.isDebugEnabled()) {
-                logger.debug("Error retrieving application " + imageMagickImage.getPath() + " weight", e);
+                logger.debug("Error retrieving image " + imageMagickImage.getPath() + " weight", e);
             }
             return -1;
         }
     }
 
-    public boolean cropImage(Image image, File outputFile, int left, int top, int width, int height) throws IOException {
+    public boolean cropImage(Image i, File outputFile, int top, int left, int width, int height) throws IOException {
         try {
             // create command
             ConvertCmd cmd = new ConvertCmd();
 
             // create the operation, add images and operators/options
             IMOperation op = new IMOperation();
-            op.addImage(image.getPath());
+            op.addImage(i.getPath());
             op.background("none");
             op.crop(width, height, left, top);
             op.p_repage();
@@ -99,6 +140,10 @@ public class ImageMagickImageService extends AbstractImageService {
             // logger.info("Running ImageMagic command: convert " + op);
             cmd.run(op);
         } catch (Exception e) {
+            logger.error("Error cropping image " + i.getPath() + " to size " + width + "x" + height + ": " + e.getLocalizedMessage());
+            if (logger.isDebugEnabled()) {
+                logger.debug("Error cropping image " + i.getPath() + " to size " + width + "x" + height, e);
+            }
             return false;
         }
         return true;
@@ -118,6 +163,10 @@ public class ImageMagickImageService extends AbstractImageService {
             // logger.info("Running ImageMagic command: convert " + op);
             cmd.run(op);
         } catch (Exception e) {
+            logger.error("Error rotating image " + image.getPath(), e);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Error rotating image " + image.getPath(), e);
+            }
             return false;
         }
         return true;
@@ -147,9 +196,9 @@ public class ImageMagickImageService extends AbstractImageService {
         BufferedImage img = s2b.getImage();
             return img;
         } catch (Exception e) {
-            logger.error("Error resizing application : " + e.getLocalizedMessage());
+            logger.error("Error resizing image : " + e.getLocalizedMessage());
             if (logger.isDebugEnabled()) {
-                logger.debug("Error resizing application ", e);
+                logger.debug("Error resizing image ", e);
             }
             return null;
         }
@@ -170,9 +219,9 @@ public class ImageMagickImageService extends AbstractImageService {
 
             cmd.run(op);
         } catch (Exception e) {
-            logger.error("Error resizing application " + inputFile + ": " + e.getLocalizedMessage());
+            logger.error("Error resizing image " + inputFile + ": " + e.getLocalizedMessage());
             if (logger.isDebugEnabled()) {
-                logger.debug("Error resizing application " + inputFile, e);
+                logger.debug("Error resizing image " + inputFile, e);
             }
             return false;
         }

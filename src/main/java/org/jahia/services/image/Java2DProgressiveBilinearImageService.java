@@ -7,7 +7,7 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Progressive Bilinear implementation of the Java 2D application operation.
+ * Progressive Bilinear implementation of the Java 2D image operation.
  * <p/>
  * This algorithm comes from http://code.google.com/p/thumbnailator/, itself used from the
  * example code from the resizing technique
@@ -22,7 +22,7 @@ public class Java2DProgressiveBilinearImageService extends Java2DBicubicImageSer
     }
 
     @Override
-    public boolean resizeImage(org.jahia.services.image.Image image, File outputFile, int newWidth, int newHeight, ResizeType resizeType) throws IOException {
+    public boolean resizeImage(Image image, File outputFile, int newWidth, int newHeight, ResizeType resizeType) throws IOException {
 
         BufferedImage originalImage = ((BufferImage) image).getOriginalImage();
 
@@ -31,7 +31,7 @@ public class Java2DProgressiveBilinearImageService extends Java2DBicubicImageSer
             return false;
         }
 
-        // Save destination application
+        // Save destination image
         saveImageToFile(dest, ((BufferImage) image).getMimeType(), outputFile);
         return true;
     }
@@ -51,7 +51,7 @@ public class Java2DProgressiveBilinearImageService extends Java2DBicubicImageSer
 
         BufferedImage dest = getDestImage(width, height, image);
 
-        // Paint source application into the destination, scaling as needed
+        // Paint source image into the destination, scaling as needed
         Graphics2D graphics2D = getGraphics2D(dest, OperationType.RESIZE);
 
         // If multi-step downscaling is not required, perform one-step.
@@ -63,11 +63,11 @@ public class Java2DProgressiveBilinearImageService extends Java2DBicubicImageSer
                     resizeCoords.getSourceStartPosX() + resizeCoords.getSourceWidth(), resizeCoords.getSourceStartPosY() + resizeCoords.getSourceHeight(),
                     null);
             graphics2D.dispose();
-            // Save destination application
+            // Save destination image
             return dest;
         }
 
-        // Temporary application used for in-place resizing of application.
+        // Temporary image used for in-place resizing of image.
         BufferedImage tempImage = new BufferedImage(
                 currentWidth,
                 currentHeight,
@@ -122,7 +122,7 @@ public class Java2DProgressiveBilinearImageService extends Java2DBicubicImageSer
 
         g.dispose();
 
-        // Draw the resized application onto the destination application.
+        // Draw the resized image onto the destination image.
         graphics2D.drawImage(tempImage,
                 resizeCoords.getTargetStartPosX(),
                 resizeCoords.getTargetStartPosY(), resizeCoords.getTargetStartPosX() + targetWidth, resizeCoords.getTargetStartPosY() + targetHeight, 0, 0, currentWidth, currentHeight, null);
@@ -132,7 +132,7 @@ public class Java2DProgressiveBilinearImageService extends Java2DBicubicImageSer
     }
 
     protected Graphics2D getGraphics2D(BufferedImage dest, OperationType operationType) {
-        // Paint source application into the destination, scaling as needed
+        // Paint source image into the destination, scaling as needed
         Graphics2D graphics2D = dest.createGraphics();
         if (dest.getColorModel() instanceof IndexColorModel) {
             if (OperationType.RESIZE.equals(operationType)) {

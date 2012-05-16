@@ -25,7 +25,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 
 /**
- * Abstract Java2D common application operation implementations
+ * Abstract Java2D common image operation implementations
  */
 public abstract class AbstractJava2DImageService extends AbstractImageService {
 
@@ -46,15 +46,15 @@ public abstract class AbstractJava2DImageService extends AbstractImageService {
                 ResizeType.ASPECT_FILL,
                 ResizeType.ASPECT_FIT
         };
-    }
+            }
 
     private static Detector detector = new DefaultDetector();
 
     public Image getImage(File sourceFile) throws IOException {
         if (!canRead(sourceFile)) {
             logger.error("Image reading for file " + sourceFile + " is not supported by this implementation (" + this.getClass().getName() + ")");
-            return null;
-        }
+                return null;
+            }
         // Read application to scale
         try {
             Metadata metadata = new Metadata();
@@ -90,8 +90,7 @@ public abstract class AbstractJava2DImageService extends AbstractImageService {
         return bufferImage.getOriginalImage().getWidth();
     }
 
-    public boolean cropImage(Image image, File outputFile, int left, int top, int width, int height) throws IOException {
-
+    public boolean cropImage(Image image, File outputFile, int top, int left, int width, int height) throws IOException {
         BufferedImage originalImage = ((BufferImage) image).getOriginalImage();
 
         int clippingWidth = width;
@@ -108,18 +107,17 @@ public abstract class AbstractJava2DImageService extends AbstractImageService {
                 top + clippingHeight, null);
         area.dispose();
 
-        // Save destination application
+        // Save destination image
         saveImageToFile(clipping, ((BufferImage)image).getMimeType(), outputFile);
 
         return true;
     }
 
     public boolean rotateImage(Image image, File outputFile, boolean clockwise) throws IOException {
-
         BufferedImage originalImage = ((BufferImage) image).getOriginalImage();
 
         BufferedImage dest = getDestImage(originalImage.getHeight(), originalImage.getWidth(), originalImage);
-        // Paint source application into the destination, scaling as needed
+        // Paint source image into the destination, scaling as needed
         Graphics2D graphics2D = getGraphics2D(dest, OperationType.ROTATE);
 
         double angle = Math.toRadians(clockwise ? 90 : -90);
@@ -135,19 +133,19 @@ public abstract class AbstractJava2DImageService extends AbstractImageService {
             graphics2D.drawImage(originalImage, 0, 0, null);
         }
 
-        // Save destination application
+        // Save destination image
         saveImageToFile(dest, ((BufferImage)image).getMimeType(), outputFile);
         return true;
     }
 
-    public boolean resizeImage(Image image, File outputFile, int newWidth, int newHeight, AbstractImageService.ResizeType resizeType) throws IOException {
+    public boolean resizeImage(Image image, File outputFile, int newWidth, int newHeight, ResizeType resizeType) throws IOException {
 
         BufferedImage originalImage = ((BufferImage) image).getOriginalImage();
 
         BufferedImage dest = resizeImage(originalImage, newWidth, newHeight, resizeType);
 
-        // Save destination application
-        saveImageToFile(dest, ((BufferImage)image).getMimeType(), outputFile);
+        // Save destination image
+        saveImageToFile(dest, ((BufferImage) image).getMimeType(), outputFile);
 
         return true;
     }
@@ -161,7 +159,7 @@ public abstract class AbstractJava2DImageService extends AbstractImageService {
 
         BufferedImage dest = getDestImage(width, newHeight, image);
 
-        // Paint source application into the destination, scaling as needed
+        // Paint source image into the destination, scaling as needed
         Graphics2D graphics2D = getGraphics2D(dest, OperationType.RESIZE);
 
         graphics2D.drawImage(image,

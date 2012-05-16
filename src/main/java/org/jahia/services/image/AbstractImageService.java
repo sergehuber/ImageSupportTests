@@ -7,7 +7,7 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Abstract class for common application operation methods
+ * Abstract class to share some methods between service implementations
  */
 public abstract class AbstractImageService implements JahiaImageService {
 
@@ -110,9 +110,9 @@ public abstract class AbstractImageService implements JahiaImageService {
                 resizeImage(iw, outputFile, size, size, ResizeType.ADJUST_SIZE);
             }
         } catch (Exception e) {
-            logger.error("Error creating thumbnail of size "+size +" for application " + iw.getPath() + ":" + e.getLocalizedMessage());
+            logger.error("Error creating thumbnail of size "+size +" for image " + iw.getPath() + ":" + e.getLocalizedMessage());
             if (logger.isDebugEnabled()) {
-                logger.debug("Error creating thumbnail of size "+size +" for application " + iw.getPath(), e);
+                logger.debug("Error creating thumbnail of size "+size +" for image " + iw.getPath(), e);
             }
             return false;
         }
